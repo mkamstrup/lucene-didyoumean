@@ -96,23 +96,6 @@ public class SuggestionFacade<R> {
 
   private AprioriCorpusFactory aprioriCorpusFactory;
 
-  public SuggestionFacade(File dataRootPath) throws QueryException {
-    this(new File(dataRootPath, "dictionary"), new File(dataRootPath, "querySessionManager"));
-  }
-
-  public SuggestionFacade(File dictionaryPath, File querySessionManagerPath) throws QueryException {
-    this(dictionaryPath, querySessionManagerPath, new DefaultSuggester(), new DefaultTrainer<R>(), new DefaultQueryGoalTreeExtractor<R>(), new DefaultAprioriCorpusFactory());
-  }
-
-  public SuggestionFacade(File bdbRoot, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws QueryException {
-    this(new File(bdbRoot, "dictionary"), new File(bdbRoot, "querySessionManager"), suggester, trainer, queryGoalTreeExtractor, aprioriCorpusFactory);
-  }
-
-
-  public SuggestionFacade(File dictionaryPath, File querySessionManagerPath, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws QueryException {
-    this(new Dictionary(dictionaryPath), new QuerySessionManager<R>(querySessionManagerPath), suggester, trainer, queryGoalTreeExtractor, aprioriCorpusFactory);
-  }
-
   public SuggestionFacade(Dictionary dictionary, QuerySessionManager<R> querySessionManager, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws QueryException {
     this.dictionary = dictionary;
     this.querySessionManager = querySessionManager;

@@ -1,0 +1,33 @@
+digraph goalTreeA
+{
+  nodeA[shape=box label="heroes of knight and magic" color="red"];
+  nodeB[shape=box label="heroes of light and magic" color="red"];
+  nodeC[shape=box label="heroes of night and magic" color="red"];
+  nodeD[shape=box label="heroes of might and magic" color="green"];
+  nodeE[shape=box label="homm" color="green"];
+  nodeA->nodeB[label="edit distance"];
+  nodeA->nodeC[label="edit distance"];
+  nodeC->nodeD[label="edit distance"];
+  nodeD->nodeE[label="short time"];
+
+  inspectionD1[label="inspected 1st result"];
+  inspectionD2[label="commented 3rd result"];
+  inspectionD1->nodeD
+  inspectionD2->nodeD;
+  inspectionE1[label="inspected 1st result"];
+  inspectionE2[label="inspected 2nd result"];
+  inspectionE1->nodeE;
+  inspectionE2->nodeE;
+
+  suggestionA[label="heroes of might and magic" color="yellow"];
+  nodeA->suggestionA[label="adapt++"];
+  suggestionB[label="heroes of might and magic" color="yellow"];
+  nodeB->suggestionB[label="adapt++"];
+  suggestionC[label="heroes of might and magic" color="yellow"];
+  nodeC->suggestionC[label="adapt++"];
+  suggestionD[label="homm" color="yellow"];
+  nodeD->suggestionD[label="adapt++"];
+  suggestionE[label="heroes of might and magic" color="yellow"];
+  nodeE->suggestionE[label="adapt++"];
+
+}

@@ -1,0 +1,318 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="Author" content="Karl Wettin">
+</head>
+<body>
+
+<h2>Abstract</h2>
+
+<p>
+  A dictionary of correctly and incorrectly spelled words
+  pointing at one or many weighted suggestions
+  created from previous user activity
+  and backed by algorithmic suggestions.
+</p>
+
+<h2>Consumer interface</h2>
+
+<p>The simplest implementation would look something like this:</p>
+
+<pre>
+SuggestionFacade facade = new SuggestionFacade(new File("data"));
+facade.getDictionary().getPrioritesBySecondLevelSuggester().putAll(facade.secondLevelSuggestionFactory());
+...
+QuerySession session = facade.getQuerySessionManager().sessionFactory();
+...
+String query = "heros of mght and magik";
+Hits hits = searcher.search(queryFactory(query));
+String suggested = facade.didYouMean(query);
+session.query(query, hits.length(), suggested);* ...
+facade.getQuerySessionManager().getSessionsByID().put(session);
+...
+facade.trainExpiredSessions();
+...
+facade.close();
+</pre>
+
+<p>Usage can be much more complex than that and would then yeild in better suggestions.</p>
+
+<h2>Rationale</h2>
+
+<p>
+  These are the results from contemplating on the relationships between
+  <ul>
+    <li>the user a priori (what the users knows to be right)</li>
+    <li>user queries (what the user is searching for in the system corpus) and how they are changed during a session in
+      quest for one or many specific goals
+    </li>
+    <li>the results a user inspected and perhaps even classified by taking further actions</li>
+    <li>the system corpus (the information available to search in)</li>
+    <li>and the system a priori (things the system knows to be right, probably a part of the system corpus you trust to
+      be right. E.g. movie titles, but not user comments.)
+    </li>
+  </ul>
+</p>
+
+<p>
+  As a user progress in their search for data in a corpus,
+  by supplying queries,
+  accepting and decline suggestions,
+  manually changing queries
+  and inspect results in different ways,
+  the system tries to find the goals of the event tree
+  and suggest these goals to future users with similair behaviour.
+</p>
+
+<p>It is not completly wrong to call this a semi-retarded reinforcement learning strategy.</p>
+
+<p>
+  When a user requests a suggestion to a query prior unknown to the dictonary,
+  second level suggesters will attempt to come up with something.
+  These are usually algorithmic and not aware of the dictionary.
+</p>
+
+<p>
+  In a young implementation, or in one with very little user load,
+  the dictionary will more or less act as a cache against the second level suggesters.
+</p>
+
+<p>
+  Spell corrections, synonyms and acronyms
+  are the most common effects I have seen from an active adaptative suggester.
+</p>
+
+<p>
+  As all queries ever placed are stored in the dictionary (until pruned)
+  and the dictionary key is a whitespace and punctuation free version of the query,
+  any decomposited or composited typo will be handled.
+  For instance, "leonardo da vinci" will get the key "leonardodavinci" and thus suggest
+  "leonardo da vinci" in case the input query is "leonardo davinci".
+</p>
+
+<h2>Query goal trees</h2>
+
+<p>
+  A user session could contain multiple quests for content.
+  For example:
+  first the user looks for the Apache licence,
+  spells it wrong, inspects different results,
+  and then the user searches for the author Ivan Goncharov.
+</p>
+
+<p>
+  In this package they are called different query goals.
+</p>
+
+<p>
+  It is up to the QueryGoalTreeExtractor implementations to decide what
+  events in a session are parts of the same goal,
+  as we don't want to suggest the user to check out Goncharov
+  when they are looking for the Apache license.
+</p>
+
+<p>
+  In the default query goal tree extractor,
+  nodes are parts of the same goal as their parent when:
+  <ul>
+    <li>The queries are the same.</li>
+    <li>The user took a suggestion from the system.</li>
+    <li>The current and the parent queries are similair enough.</li>
+    <li>The queries was entered within short enough time.</li>
+  </ul>
+</p>
+<p>
+  User activities are kept track of in a tree of QueryGoalNode:s,
+  where each node contains a user query,
+  if the current query (node) was a suggestion to a previous user query (node),
+  what search results was further inspected,
+  when it happend,
+  and for how long.
+</p>
+
+<p>
+  <i>Figure A.</i><br/>
+  <img src="doc-files/goalTreeA.png"
+       alt="figA">
+  <br/>
+  User first look for "heroes of knight and magic",<br/>
+  followed by "heroes of light and magic",<br/>
+  goes back to the first query (knight) and changes that to "heroes of night and magic",<br/>
+  followed by "heroes of might and magic".<br/>
+  The user adds a comment in the third hit<br/>
+  and then inspects the first hit,<br/>
+  see that "homm" is a common acronym and searches for that too.<br/>
+  Inspects two hits in homm<br/>
+</p>
+
+<p>
+  <i>Figure B.</i><br/>
+  <img src="doc-files/goalTreeB.png"
+       alt="figB">
+</p>
+
+<p>
+  The tree is sent to a trainer that in this case guesses
+  "heroes of might and magic" and "homm" seems to be what the user was looking for.
+  All non-inspected results are then adapted to suggest the most similar goal.
+  The two final goals are adapted to suggest each other.
+</p>
+
+
+<h2>Adaptive training</h2>
+
+<p>
+  Adaptive means that the suggestions to a query
+  depends on how users previously have been acting.
+  This means that the dictionary could be tampered with quite easy by hammering the trainer with data
+  and you should therefore try to train only with data from trusted users.
+</p>
+
+<p>
+  The default trainer implementation works like this:
+  <ul>
+    <li>If a user accepts the suggestion made by the system, then the score for that suggestion is incresed.
+      (positive adaptation)
+    </li>
+    <li>If a user does not accept the suggestion made by the system, then the score for that suggestion is decreased.
+      (negative adaptation)
+    </li>
+    <li>
+      If the goal tree is a single query (perhaps with multiple inspections)
+      then adapt negative on suggestion once again.
+    </li>
+    <li>
+      Suggestions are the queries with inspections, ordered by the classification weight.
+      All the queries in the goal without inspections will be adpated positive with
+      the query with inspections that has the shortest edit distance.
+    </li>
+    <li>Suggests back from best goal to second best goal. homm -> heroes of might and magic -> homm</li>
+  </ul>
+</p>
+
+<h2>Suggesting</h2>
+
+<p>
+  Suggestions are created by the suggester, that navigates a dictionary.
+  The default implementation works like this:
+  <ul>
+    <li>
+      Returns highest scoring suggestion available,
+      unless the score is lower than the suggestion supression threadshold.
+    </li>
+    <li>
+      If there are no suggestions available, the second level suggesters
+      registred to the dictionary are used to produce the suggestions.
+    </li>
+    <li>
+      If the top scoring suggestion is same as the query,
+      and the second best is not supressed below threadshold,
+      switch the top two suggestions. (This should probably be a setting.)
+    </li>
+  </ul>
+  Ignoring a suggestion 50 times or so with a DefaultTrainer
+  supresses a suggestions below the default threadshold.
+  If a user manually change a query to a suppresed value
+  and thus be suggested again if no other suggestion is considered more important.
+</p>
+
+<h2>Second level suggesting</h2>
+
+<p>
+  If the dictionary does not contain a suggestion for a given query,
+  it will be passed on to any available SecondLevelSuggester,
+  usually an algorithmic suggestion scheme
+  that hopefully can come up with something.
+  When a user accepts such a suggestion
+  it will be picked up by the adaptive trainer
+  and become a part of the dictionary.
+</p>
+
+<h3>A priori corpus dependency</h3>
+
+<p>
+  In order for second level suggesters to work they need a corpus that is known to be correct:
+  an a priori corpus. This ought to be a small index that only contain text people do not know how
+  to spell, i.e. it only consume clock ticks at suggestion time if it is filled with phrases
+  people always get right.
+</p>
+
+<h3>A priori corpus extraction</h3>
+
+<p>
+  By inverting the dictionary and extracting the tokens or phrases people have most problem spelling,
+  a pretty good a priori corpus can be created. This will however require a dictionary that has been
+  exposed to quite some user activity.
+</p>
+
+<h3>Token suggesters</h3>
+
+<p>
+  The lowest level of suggestion is single token suggestions,
+  and the default implementation is a refactor of the contrib/spellcheck.
+</p>
+
+<h4>NgramTokenSuggester</h4>
+
+<p>A refactor of the Lucene crontrib/spellcheck single token ngram suggester</p>
+
+<h3>TokenPhraseSuggester</h3>
+
+<p>
+  Combines the output from a single token suggester, applied to each token (word) in a phrase,
+  to create possible phrases. In essense this is the same thing as a SpanFuzzyQuery.
+</p>
+
+<p>
+  For example, the user places the query "thh best game".
+  The matrix of similar tokens are:
+<pre>
+  the best game
+  tho rest fame
+           lame
+</pre>
+  These can be combined as:
+<pre>
+  tho best game
+  tho best fame
+  tho best lame
+  tho rest game
+  tho rest fame
+  tho rest lame
+  the best game
+  the best fame
+  the best lame
+  the rest game
+  the rest fame
+  the rest lame
+</pre>
+  A query is created for each combination to find valid suggestions in the a priori index.
+  In the default implementation SpanNearQueries are used.
+</p>
+<p>
+  If any of the valid hits contains a TermPositionVector
+  it will be analyzed and suggest the query in the order of terms in the corpus.
+</p>
+
+<p>
+  E.g. query "camel that broke the staw" is suggested with "straw that broke the camel"
+</p>
+
+<p>
+  <i>todo: if term offsets available and value stored, suggest that value (for cosmetic reasons).</i>
+</p>
+
+<h3>MultiTokenSuggester</h3>
+
+<p>
+  Works similar to the TokenPhraseSuggester, but uses term queries rather than span near queries,
+  used when people place queries where the terms within the query really has nothing to do with each other.
+  This second level suggester should have a lower priority than the TokenPhraseSuggester.
+</p>
+
+
+<hr/>
+
+</body>
+</html>

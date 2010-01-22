@@ -142,9 +142,13 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
     return inverted;
   }
 
-  public abstract Map<SecondLevelSuggester, Double> getPrioritiesBySecondLevelSuggester();
+  public Map<SecondLevelSuggester, Double> getPrioritiesBySecondLevelSuggester() {
+    return prioritiesBySecondLevelSuggester;
+  }
 
-  public abstract void setPrioritiesBySecondLevelSuggester(Map<SecondLevelSuggester, Double> prioritiesBySecondLevelSuggester);
+  public void setPrioritiesBySecondLevelSuggester(Map<SecondLevelSuggester, Double> prioritiesBySecondLevelSuggester) {
+    this.prioritiesBySecondLevelSuggester = prioritiesBySecondLevelSuggester;
+  }
 
   /**
    * Implementation must pass query through keyformatter!
@@ -170,6 +174,8 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
   /**
    * Removes excess suggestions that probably never be suggested,
    * for instance those with too great distance from top suggestion.
+   *
+   * @param maxSize the maximum number of suggestions for a given query
    */
   public abstract void prune(int maxSize) throws IOException;
 

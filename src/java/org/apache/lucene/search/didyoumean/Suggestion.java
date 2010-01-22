@@ -25,7 +25,6 @@ import java.text.DecimalFormat;
  *         Time: 4:59:06 PM
  *         <p/>
  */
-@Persistent
 public class Suggestion implements Comparable<Suggestion> {
 
   private String suggested;

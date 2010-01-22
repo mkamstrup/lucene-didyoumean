@@ -31,18 +31,14 @@ import org.apache.lucene.search.didyoumean.Suggestion;
  *         Time: 06:28:23
  *         <p/>
  */
-@Entity
 public class SuggestionList implements Iterable<Suggestion>, Serializable {
 
   // private static Log log = LogFactory.getLog(SuggestionsList.class);
   private static long serialVersionUID = 1l;
 
-  @PrimaryKey
+  //@PrimaryKey
   private String query;
   private List<Suggestion> suggestions = new LinkedList<Suggestion>();
-
-  /** bdb persistency */
-  private SuggestionList(){}
 
   SuggestionList(String query) {
     this.query = query;

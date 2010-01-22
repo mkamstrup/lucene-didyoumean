@@ -1,5 +1,6 @@
 package org.apache.lucene.index.facade;
 
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.instantiated.InstantiatedIndex;
 import org.apache.lucene.store.instantiated.InstantiatedIndexWriter;
 import org.apache.lucene.document.Document;
@@ -28,8 +29,7 @@ import java.io.IOException;
  * Date: 2007-aug-17
  * Time: 03:51:57
  */
-public class InstantiatedIndexFacade
-    extends IndexFacade {
+public class InstantiatedIndexFacade extends IndexFacade {
 
   private InstantiatedIndex ii;
 
@@ -41,7 +41,7 @@ public class InstantiatedIndexFacade
     return ii.indexReaderFactory();
   }
 
-  public IndexWriterFacade indexWriterFactory(final Analyzer analyzer, final boolean create) throws IOException {
+  public IndexWriterFacade indexWriterFactory(final Analyzer analyzer, final boolean create, IndexWriter.MaxFieldLength mfl) throws IOException {
     return new IndexWriterFacade() {
 
       private InstantiatedIndexWriter iw = ii.indexWriterFactory(analyzer, create);

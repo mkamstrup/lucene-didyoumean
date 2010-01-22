@@ -2,6 +2,7 @@ package org.apache.lucene.index.facade;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 
 import java.io.IOException;
 /*
@@ -29,6 +30,6 @@ public abstract class IndexFacade {
 
   public abstract IndexReader indexReaderFactory() throws IOException;
 
-  public abstract IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create) throws IOException;
+  public abstract IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create, IndexWriter.MaxFieldLength mfl) throws IOException;
 
 }

@@ -1,6 +1,7 @@
 package org.apache.lucene.index.facade;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.index.IndexReader;
 
@@ -38,7 +39,7 @@ public class DirectoryIndexFacade extends IndexFacade {
     return IndexReader.open(directory);
   }
 
-  public IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create) throws IOException {
-    return new DirectoryIndexWriterFacade(directory, analyzer, create);
+  public IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create, IndexWriter.MaxFieldLength mfl) throws IOException {
+    return new DirectoryIndexWriterFacade(directory, analyzer, create, mfl);
   }
 }

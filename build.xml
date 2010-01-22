@@ -34,7 +34,6 @@
   <path id="classpath">
     <pathelement path="${common.dir}/build/classes/java"/>
     <pathelement path="${instantiated.jar}"/>
-    <pathelement path="${basedir}/lib/${je.jar}"/>
   </path>
 
 </project>

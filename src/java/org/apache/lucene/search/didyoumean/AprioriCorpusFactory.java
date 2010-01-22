@@ -1,6 +1,7 @@
 package org.apache.lucene.search.didyoumean;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
 import org.apache.lucene.search.didyoumean.dictionary.QueryException;
@@ -42,6 +43,6 @@ public interface AprioriCorpusFactory {
    * @throws IOException
    * @throws QueryException
    */
-  public abstract void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer) throws IOException, QueryException;
+  public abstract void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer, IndexWriter.MaxFieldLength mfl) throws IOException, QueryException;
 
 }

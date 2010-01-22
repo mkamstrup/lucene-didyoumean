@@ -1,4 +1,4 @@
-package org.apache.lucene.search.didyoumean;
+package org.apache.lucene.search.didyoumean.session;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +23,12 @@ import java.util.List;
  * Date: 2007-okt-17
  * Time: 17:24:47
  */
-@Entity
+//@Entity
 public class QuerySession<R> {
 
   private static long defaultExpirationTimeMilliseconds = 1000 * 60 * 10; // 10 minutes
 
-  @PrimaryKey
+  //@PrimaryKey
   private String id;
 
   private long lastTouched = System.currentTimeMillis();

@@ -24,18 +24,14 @@ import org.apache.lucene.index.facade.IndexFacadeFactory;
 import org.apache.lucene.index.facade.InstantiatedIndexFacade;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
 import org.apache.lucene.search.didyoumean.dictionary.QueryException;
-import org.apache.lucene.search.didyoumean.impl.DefaultAprioriCorpusFactory;
-import org.apache.lucene.search.didyoumean.impl.DefaultQueryGoalTreeExtractor;
-import org.apache.lucene.search.didyoumean.impl.DefaultSuggester;
-import org.apache.lucene.search.didyoumean.impl.DefaultTrainer;
 import org.apache.lucene.search.didyoumean.secondlevel.token.MultiTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.SecondLevelTokenPhraseSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
+import org.apache.lucene.search.didyoumean.session.*;
 import org.apache.lucene.store.instantiated.InstantiatedIndex;
 import org.apache.lucene.util.Version;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,9 +60,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * facade.close();
  * </pre>
  * <p/>
- * The trainer is fed with trees of {@link org.apache.lucene.search.didyoumean.QueryGoalNode} instances. Each such
+ * The trainer is fed with trees of {@link QueryGoalNode} instances. Each such
  * tree represent the events that took place while a user tried to find content within a certain context: a goal tree.
- * An instance of {@link org.apache.lucene.search.didyoumean.QueryGoalTreeExtractor} will help you to find and isolate
+ * An instance of {@link QueryGoalTreeExtractor} will help you to find and isolate
  * all the goals in a tree representing a complete user session, as they sometimes contain more than one.
  * <p/>
  * It is up to the trainer and the suggester to decide how suggestions in the dictionary are stored and modified. Thus

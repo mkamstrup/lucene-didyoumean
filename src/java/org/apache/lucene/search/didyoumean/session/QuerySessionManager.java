@@ -1,4 +1,11 @@
-package org.apache.lucene.search.didyoumean;
+package org.apache.lucene.search.didyoumean.session;
+
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.Environment;
+import com.sleepycat.je.EnvironmentConfig;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.StoreConfig;
 
 import java.io.File;
 /*

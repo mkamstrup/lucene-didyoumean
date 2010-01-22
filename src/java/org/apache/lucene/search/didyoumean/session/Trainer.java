@@ -1,4 +1,4 @@
-package org.apache.lucene.search.didyoumean;
+package org.apache.lucene.search.didyoumean.session;
 
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
 import org.apache.lucene.search.didyoumean.dictionary.QueryException;

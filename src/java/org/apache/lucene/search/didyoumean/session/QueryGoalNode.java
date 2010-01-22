@@ -1,4 +1,4 @@
-package org.apache.lucene.search.didyoumean;
+package org.apache.lucene.search.didyoumean.session;
 
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         Date: 2007-jan-31
  *         Time: 06:23:42
  */
-@Persistent
+//@Persistent
 public class QueryGoalNode<R>  {
 
   private QueryGoalNode<R> parent;
@@ -171,7 +171,7 @@ public class QueryGoalNode<R>  {
    */
   public static final Double GOAL = 1d;
 
-  @Persistent
+  //@Persistent
   public class Inspection {
     /** reference to the inspected item. */
     private R reference;

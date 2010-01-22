@@ -1,4 +1,4 @@
-package org.apache.lucene.search.didyoumean;
+package org.apache.lucene.search.didyoumean.session;
 
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");

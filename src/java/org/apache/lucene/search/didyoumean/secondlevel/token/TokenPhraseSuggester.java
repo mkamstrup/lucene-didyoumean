@@ -23,9 +23,9 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.index.TermPositionVector;
 import org.apache.lucene.index.facade.IndexFacade;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
 
@@ -265,7 +265,7 @@ public abstract class TokenPhraseSuggester {
 
     int queryCounter = 0;
     int currentHit = 0;
-    Hits hits = null;
+    TopDocs hits = null;
     Suggestion[] suggestions = null;
     while (hits != null || itAllCombinations.hasNext()) {
       Integer corpusQueryResults = null;
@@ -288,9 +288,9 @@ public abstract class TokenPhraseSuggester {
           Query nextQuery = suggestionAprioriQueryFactory(suggestions);
           try {
 
-            hits = getAprioriSearcher().search(nextQuery);
-            corpusQueryResults = hits.length();
-            if (hits.length() == 0) {
+            hits = getAprioriSearcher().search(nextQuery, Integer.MAX_VALUE);
+            corpusQueryResults = hits.totalHits;
+            if (corpusQueryResults == 0) {
               hits = null;
               continue;
             } else {
@@ -312,12 +312,12 @@ public abstract class TokenPhraseSuggester {
         // todo refactor, this is a nasty hack due to MultiTokenSuggester using this code.
 
 
-        if (currentHit < hits.length()) {
+        if (currentHit < hits.totalHits) {
 
           // attempt to figure out the order of the tokens in the phrase
 
           try {
-            TermFreqVector termFreqVector = getAprioriReader().getTermFreqVector(hits.id(currentHit), getAprioriIndexField());
+            TermFreqVector termFreqVector = getAprioriReader().getTermFreqVector(hits.scoreDocs[currentHit].doc, getAprioriIndexField());
             if (termFreqVector != null && termFreqVector instanceof TermPositionVector) {
               TermPositionVector termPosVector = (TermPositionVector) termFreqVector;
               final int[][] suggestionPositions = new int[suggestions.length][];
@@ -356,7 +356,7 @@ public abstract class TokenPhraseSuggester {
             } else {
               // to term vector. look for one in next hit.
               // todo some setting that skip this when score is lower than n or current hit greather than n.
-              if (hits.length() - 1 == currentHit) {
+              if (hits.totalHits - 1 == currentHit) {
                 // fall back on user input
               } else {
                 continue;
@@ -381,7 +381,7 @@ public abstract class TokenPhraseSuggester {
       for (Suggestion suggestion : suggestions) {
         score += suggestion.getScore();
       }
-      score *= hits.length();
+      score *= hits.totalHits;
 
       queue.add(new Suggestion(suggested, score, corpusQueryResults));
 

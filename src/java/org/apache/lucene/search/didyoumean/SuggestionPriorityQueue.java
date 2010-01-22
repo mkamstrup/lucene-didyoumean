@@ -25,7 +25,7 @@ import java.util.LinkedList;
  * Date: 2007-mar-03
  * Time: 13:14:38
  */
-public class SuggestionPriorityQueue extends PriorityQueue {
+public class SuggestionPriorityQueue<E> extends PriorityQueue<E> {
 
   public SuggestionPriorityQueue(int maxSize) {
     initialize(maxSize);

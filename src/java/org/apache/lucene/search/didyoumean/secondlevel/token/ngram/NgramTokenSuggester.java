@@ -123,7 +123,7 @@ public class NgramTokenSuggester implements TokenSuggester {
   public SuggestionPriorityQueue suggest(String queryToken, int maxSuggestions, boolean suggestSelf, IndexReader aprioriIndexReader,
                                          String aprioriIndexField, boolean suggestOnyMorePopularTokens, int hitEnumerationsPerSuggestion) throws IOException {
 
-    SuggestionPriorityQueue queue = new SuggestionPriorityQueue(maxSuggestions);
+    SuggestionPriorityQueue<Suggestion> queue = new SuggestionPriorityQueue<Suggestion>(maxSuggestions);
 
     float minScore = this.minScore;
     final EditDistance editDistance = editDistanceFactory(queryToken);
@@ -132,7 +132,7 @@ public class NgramTokenSuggester implements TokenSuggester {
     final int goalFreq = (suggestOnyMorePopularTokens && aprioriIndexReader != null) ? aprioriIndexReader.docFreq(new Term(aprioriIndexField, queryToken)) : 0;
     // if the word exists in the real index and we don't care for word frequency, return the word itself
     if (!suggestOnyMorePopularTokens && goalFreq > 0) {
-      queue.insert(new Suggestion(queryToken));
+      queue.add((new Suggestion(queryToken));
       return queue;
     }
 

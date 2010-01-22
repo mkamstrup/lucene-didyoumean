@@ -15,13 +15,12 @@ package org.apache.lucene.search.didyoumean.impl;
  *
  */
 
-
-import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.search.didyoumean.AbstractSuggester;
 import org.apache.lucene.search.didyoumean.EditDistance;
 import org.apache.lucene.search.didyoumean.Levenshtein;
 import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
+import org.apache.lucene.search.didyoumean.dictionary.QueryException;
 import org.apache.lucene.search.didyoumean.dictionary.SuggestionList;
 
 import java.io.Serializable;
@@ -76,7 +75,7 @@ public class DefaultSuggester extends AbstractSuggester implements Serializable 
    */
   private double suggestionSupressionThreadshold = 0.05d;
 
-  private SuggestionList gatherSuggestionList(Dictionary dictionary, String query, int n) throws DatabaseException {
+  private SuggestionList gatherSuggestionList(Dictionary dictionary, String query, int n) throws QueryException {
     SuggestionList suggestions = dictionary.getSuggestions(query);
     if (suggestions != null && suggestions.size() > 0) {
       // if top suggestion is suppressed,
@@ -91,7 +90,7 @@ public class DefaultSuggester extends AbstractSuggester implements Serializable 
             score -= 0.01d;
             if (!suggestions.containsSuggested(suggestion.getSuggested())) {
               suggestions.addSuggested(suggestion.getSuggested(), score, suggestion.getCorpusQueryResults());
-              dictionary.getSuggestionsByQuery().put(suggestions);
+              dictionary.put(suggestion.getSuggested(), suggestions);
             }
           }
         }
@@ -100,7 +99,7 @@ public class DefaultSuggester extends AbstractSuggester implements Serializable 
     return suggestions;
   }
 
-  public Suggestion[] didYouMean(Dictionary dictionary, String query, int n) throws DatabaseException {
+  public Suggestion[] didYouMean(Dictionary dictionary, String query, int n) throws QueryException {
     SuggestionList suggestions = gatherSuggestionList(dictionary, query, n);
     if (suggestions != null) {
       if (suggestions.size() > 0) {

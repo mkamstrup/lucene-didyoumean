@@ -1,15 +1,30 @@
 package org.apache.lucene.search.didyoumean.dictionary;
 
-import dk.statsbiblioteket.util.qa.QAInfo;
+import java.io.IOException;
 
 /**
- * FIXME: Missing class docs for org.apache.lucene.search.didyoumean.dictionary.QueryException
+ * Thrown when there is an error performing a query against a {@link Dictionary}
  *
  * @author mke
  * @since Jan 22, 2010
  */
-@QAInfo(level = QAInfo.Level.NORMAL,
-        state = QAInfo.State.IN_DEVELOPMENT,
-        author = "mke")
-public class QueryException {
+public class QueryException extends IOException {
+
+  public QueryException() {
+    super();
+  }
+
+  public QueryException(String msg) {
+    super(msg);
+  }
+
+  public QueryException(String msg, Throwable cause) {
+    this(msg);
+    initCause(cause);
+  }
+
+  public QueryException(Throwable cause) {
+    this();
+    initCause(cause);
+  }
 }

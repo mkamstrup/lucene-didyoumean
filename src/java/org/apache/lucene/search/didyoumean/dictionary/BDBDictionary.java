@@ -15,14 +15,6 @@ package org.apache.lucene.search.didyoumean.dictionary;
  *
  */
 
-
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.EnvironmentConfig;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
 import org.apache.lucene.search.didyoumean.SecondLevelSuggester;
 import org.apache.lucene.search.didyoumean.Suggester;
 import org.apache.lucene.search.didyoumean.Suggestion;
@@ -45,7 +37,7 @@ import java.util.Map;
  *         Date: Jul 31, 2006
  *         Time: 2:10:19 PM
  */
-public class Dictionary {
+public class BDBDictionary {
 
   private EntityStore store;
   private PrimaryIndex<String, SuggestionList> suggestionsByQuery;

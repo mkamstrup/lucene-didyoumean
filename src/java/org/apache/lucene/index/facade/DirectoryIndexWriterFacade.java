@@ -31,8 +31,8 @@ public class DirectoryIndexWriterFacade extends IndexWriterFacade {
 
   private IndexWriter indexWriter;
 
-  public DirectoryIndexWriterFacade(Directory directory, Analyzer analyzer, boolean create) throws IOException {
-    indexWriter = new IndexWriter(directory, analyzer, create);
+  public DirectoryIndexWriterFacade(Directory directory, Analyzer analyzer, IndexWriter.MaxFieldLength mfl) throws IOException {
+    indexWriter = new IndexWriter(directory, analyzer, mfl);
   }
 
   public void addDocument(Document document, Analyzer analyzer) throws IOException {

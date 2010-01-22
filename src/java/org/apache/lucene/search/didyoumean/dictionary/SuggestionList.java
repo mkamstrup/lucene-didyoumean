@@ -15,10 +15,6 @@ package org.apache.lucene.search.didyoumean.dictionary;
  *
  */
 
-
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;

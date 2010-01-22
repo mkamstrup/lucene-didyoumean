@@ -18,6 +18,7 @@ package org.apache.lucene.search.didyoumean.secondlevel.token;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.index.TermPositionVector;
@@ -182,19 +183,20 @@ public abstract class TokenPhraseSuggester {
 
     TokenStream ts = getQueryAnalyzer().tokenStream(null, new StringReader(query));
     try {
-      Token token;
-      while ((token = ts.next()) != null) {
+      do {
         try {
-          SuggestionPriorityQueue suggestions = tokenSuggester.suggest(token.termText(), maxSuggestionsPerToken, true, getAprioriReader(), getAprioriIndexField(), suggestMorePopularTokensOnly);
+          TermAttribute term = ts.getAttribute(TermAttribute.class);
+          String termString = term.term();
+          SuggestionPriorityQueue suggestions = tokenSuggester.suggest(termString, maxSuggestionsPerToken, true, getAprioriReader(), getAprioriIndexField(), suggestMorePopularTokensOnly);
           if (suggestions.size() == 0) {
-            suggestions.insert(new Suggestion(token.termText()));
+            suggestions.add(new Suggestion(termString));
           }
           matrix.add(suggestions.toArray());
 
         } catch (IOException ioe) {
           throw new RuntimeException("Exception caught while looking for a suggestion to " + query, ioe);
         }
-      }
+      } while (ts.incrementToken());
     } catch (IOException ioe) {
       throw new RuntimeException("Error tokenizing " + query, ioe);
     }
@@ -381,7 +383,7 @@ public abstract class TokenPhraseSuggester {
       }
       score *= hits.length();
 
-      queue.insert(new Suggestion(suggested, score, corpusQueryResults));
+      queue.add(new Suggestion(suggested, score, corpusQueryResults));
 
       hits = null;
 

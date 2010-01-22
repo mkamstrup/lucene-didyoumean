@@ -29,6 +29,7 @@ import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
 import org.apache.lucene.search.didyoumean.secondlevel.token.TokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.TokenSuggestion;
+import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -132,7 +133,7 @@ public class NgramTokenSuggester implements TokenSuggester {
     final int goalFreq = (suggestOnyMorePopularTokens && aprioriIndexReader != null) ? aprioriIndexReader.docFreq(new Term(aprioriIndexField, queryToken)) : 0;
     // if the word exists in the real index and we don't care for word frequency, return the word itself
     if (!suggestOnyMorePopularTokens && goalFreq > 0) {
-      queue.add((new Suggestion(queryToken));
+      queue.add((new Suggestion(queryToken)));
       return queue;
     }
 
@@ -163,15 +164,15 @@ public class NgramTokenSuggester implements TokenSuggester {
       }
     }
 
-//    System.out.println("Q: " + query);
-    Hits hits = ngramSearcher.search(query);
-//    System.out.println("HITS: " + hits.length());
-
     // go thru more than 'maxr' matches in case the distance filter triggers
     TokenSuggestion suggestion = new TokenSuggestion();
     int stop = maxSuggestions * hitEnumerationsPerSuggestion;
-    for (int currentHit = 0; currentHit < hits.length() && currentHit < stop; currentHit++) {
-      suggestion.setSuggested(hits.doc(currentHit).get(F_WORD)); // get orig word
+    TopDocs hits = ngramSearcher.search(query, stop);
+
+    for (int currentHit = 0; currentHit < hits.totalHits && currentHit < stop; currentHit++) {
+      // get orig word
+      Document doc = ngramReader.document(hits.scoreDocs[currentHit].doc);
+      suggestion.setSuggested(doc.get(F_WORD));
 
       // don't suggest a word for itself, that would be silly
       if (!suggestSelf && suggestion.getSuggested().equals(queryToken)) {
@@ -192,7 +193,7 @@ public class NgramTokenSuggester implements TokenSuggester {
           continue;
         }
       }
-      queue.insert(suggestion);
+      queue.add(suggestion);
 
 
       suggestion = new TokenSuggestion();
@@ -254,7 +255,7 @@ public class NgramTokenSuggester implements TokenSuggester {
     if (minTokenLength < 2) {
       minTokenLength = 2;
     }
-    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Collections.EMPTY_SET), false);
+    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET), false);
     //writer.setMergeFactor(300);
     //writer.setMaxBufferedDocs(150);
 
@@ -315,7 +316,7 @@ public class NgramTokenSuggester implements TokenSuggester {
 
   private Document createDocument(String text, int ng1, int ng2) {
     Document doc = new Document();
-    doc.add(new Field(F_WORD, text, Field.Store.YES, Field.Index.UN_TOKENIZED)); // orig term
+    doc.add(new Field(F_WORD, text, Field.Store.YES, Field.Index.NOT_ANALYZED)); // orig term
     addGram(text, doc, ng1, ng2);
     return doc;
   }
@@ -327,14 +328,14 @@ public class NgramTokenSuggester implements TokenSuggester {
       String end = null;
       for (int i = 0; i < len - ng + 1; i++) {
         String gram = text.substring(i, i + ng);
-        doc.add(new Field(key, gram, Field.Store.YES, Field.Index.UN_TOKENIZED));
+        doc.add(new Field(key, gram, Field.Store.YES, Field.Index.NOT_ANALYZED));
         if (i == 0) {
-          doc.add(new Field("start" + ng, gram, Field.Store.YES, Field.Index.UN_TOKENIZED));
+          doc.add(new Field("start" + ng, gram, Field.Store.YES, Field.Index.NOT_ANALYZED));
         }
         end = gram;
       }
       if (end != null) { // may not be present if len==ng1
-        doc.add(new Field("end" + ng, end, Field.Store.YES, Field.Index.UN_TOKENIZED));
+        doc.add(new Field("end" + ng, end, Field.Store.YES, Field.Index.NOT_ANALYZED));
       }
     }
   }

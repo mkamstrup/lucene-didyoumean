@@ -1,9 +1,9 @@
 package org.apache.lucene.search.didyoumean;
 
-import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
+import org.apache.lucene.search.didyoumean.dictionary.QueryException;
 
 import java.io.IOException;
 /*
@@ -40,8 +40,8 @@ public interface AprioriCorpusFactory {
    * @param aprioriIndexField index field used to store the a priori text.
    * @param aprioriAnalyzer analyzer used to tokenize a priori text.
    * @throws IOException
-   * @throws DatabaseException
+   * @throws QueryException
    */
-  public abstract void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer) throws IOException, DatabaseException;
+  public abstract void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer) throws IOException, QueryException;
 
 }

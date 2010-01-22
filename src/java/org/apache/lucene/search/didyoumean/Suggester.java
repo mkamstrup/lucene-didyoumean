@@ -1,7 +1,7 @@
 package org.apache.lucene.search.didyoumean;
 
-import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
+import org.apache.lucene.search.didyoumean.dictionary.QueryException;
 
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,9 +33,9 @@ public interface Suggester {
    * @param query
    * @param n max number of suggestions @return
    */
-  public abstract Suggestion[] didYouMean(Dictionary dictionary, String query, int n) throws DatabaseException;
+  public abstract Suggestion[] didYouMean(Dictionary dictionary, String query, int n) throws QueryException;
 
-  public abstract String didYouMean(Dictionary dictionary, String query) throws DatabaseException ;
+  public abstract String didYouMean(Dictionary dictionary, String query) throws QueryException;
 
 
 }

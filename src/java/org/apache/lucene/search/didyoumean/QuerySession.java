@@ -1,8 +1,5 @@
 package org.apache.lucene.search.didyoumean;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-
 import java.util.ArrayList;
 import java.util.List;
 /*

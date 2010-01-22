@@ -98,7 +98,7 @@ public abstract class Dictionary {
    */
   public abstract Map<String, SuggestionList> inverted() throws QueryException;
 
-  public abstract Map<String, SuggestionList> getSuggestionsByQuery();
+  public abstract void put(String suggestion, SuggestionList suggestions);
 
   /**
    * Scans the dictionary for queries that suggests a query
@@ -115,5 +115,10 @@ public abstract class Dictionary {
    * for instance those with too great distance from top suggestion.
    */
   public abstract void prune(int maxSize) throws IOException;
+
+  /**
+   *
+   */
+  public abstract int size();
 
 }

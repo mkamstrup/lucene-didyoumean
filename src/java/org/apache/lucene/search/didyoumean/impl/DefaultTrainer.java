@@ -18,11 +18,10 @@ package org.apache.lucene.search.didyoumean.impl;
 
 import org.apache.lucene.search.didyoumean.*;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
+import org.apache.lucene.search.didyoumean.dictionary.QueryException;
 import org.apache.lucene.search.didyoumean.dictionary.SuggestionList;
 
 import java.util.*;
-
-import com.sleepycat.je.DatabaseException;
 
 /**
  * A simple adapting suggestion strategy that updates the content of a dictionary based on what a query session looked like.
@@ -62,7 +61,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
   };
 
 
-  public void trainGoalTree(Dictionary dictionary, QueryGoalNode<R> goalTreeRoot) throws DatabaseException {
+  public void trainGoalTree(Dictionary dictionary, QueryGoalNode<R> goalTreeRoot) throws QueryException {
 
     int numChildrenRecursive = 0;
     // positive and negative adaptation of suggestion scores 
@@ -83,9 +82,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
         }
 
         suggestions.sort();
-        dictionary.getSuggestionsByQuery().put(suggestions);
-
-
+        dictionary.put(suggestion.getSuggested(), suggestions);
       }
     }
 
@@ -190,9 +187,10 @@ public class DefaultTrainer<R> implements Trainer<R> {
               suggestions = dictionary.suggestionListFactory(node.getQuery());
             }
 
-            if (!suggestions.containsSuggested(nodesWithGoals.get(0).getQuery())) {
-              suggestions.addSuggested(nodesWithGoals.get(0).getQuery(), 1d, nodesWithGoals.get(0).getcorpusQueryResults());
-              dictionary.getSuggestionsByQuery().put(suggestions);
+            String suggestedQuery = nodesWithGoals.get(0).getQuery();
+            if (!suggestions.containsSuggested(suggestedQuery)) {
+              suggestions.addSuggested(suggestedQuery, 1d, nodesWithGoals.get(0).getcorpusQueryResults());
+              dictionary.put(suggestedQuery, suggestions);
             }
 
             // uncomment to adapt every time
@@ -234,10 +232,10 @@ public class DefaultTrainer<R> implements Trainer<R> {
     return closest;
   }
 
-  private void adaptPositive(Dictionary dictionary, String suggested, Integer suggestedCorpusQueryResults, QueryGoalNode<R> dictionaryKeyNode) throws DatabaseException {
+  private void adaptPositive(Dictionary dictionary, String suggested, Integer suggestedCorpusQueryResults, QueryGoalNode<R> dictionaryKeyNode) throws QueryException {
     SuggestionList suggestions = dictionary.getSuggestions(dictionaryKeyNode.getQuery());
     if (suggestions == null) {
-      suggestions = dictionary.suggestionListFactory(dictionaryKeyNode.getQuery());
+      suggestions = Dictionary.suggestionListFactory(dictionaryKeyNode.getQuery());
       suggestions.addSuggested(suggested, 1d, suggestedCorpusQueryResults);
     } else {
       boolean suggestionUpdated = false;
@@ -259,7 +257,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
       }
       suggestions.sort();
     }
-    dictionary.getSuggestionsByQuery().put(suggestions);
+    dictionary.put(suggested, suggestions);
   }
 
 

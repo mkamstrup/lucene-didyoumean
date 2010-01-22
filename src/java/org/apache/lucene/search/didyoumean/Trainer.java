@@ -1,7 +1,7 @@
 package org.apache.lucene.search.didyoumean;
 
-import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
+import org.apache.lucene.search.didyoumean.dictionary.QueryException;
 
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@ public interface Trainer<R> {
    * @param dictionary   the dictionary to update.
    * @param goalTreeRoot the query goal tree to be used for training.
    */
-  public abstract void trainGoalTree(Dictionary dictionary, QueryGoalNode<R> goalTreeRoot) throws DatabaseException;
+  public abstract void trainGoalTree(Dictionary dictionary, QueryGoalNode<R> goalTreeRoot) throws QueryException;
 
 
 //  /**

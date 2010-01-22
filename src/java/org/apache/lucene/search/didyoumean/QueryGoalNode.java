@@ -15,9 +15,6 @@ package org.apache.lucene.search.didyoumean;
  *
  */
 
-
-import com.sleepycat.persist.model.Persistent;
-
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;

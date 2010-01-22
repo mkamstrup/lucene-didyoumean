@@ -15,11 +15,6 @@ package org.apache.lucene.search.didyoumean;
  *
  */
 
-
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.Persistent;
-
-import java.io.Serializable;
 import java.text.DecimalFormat;
 
 /**

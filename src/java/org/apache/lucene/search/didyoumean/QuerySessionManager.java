@@ -1,12 +1,5 @@
 package org.apache.lucene.search.didyoumean;
 
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.EnvironmentConfig;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
-
 import java.io.File;
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");

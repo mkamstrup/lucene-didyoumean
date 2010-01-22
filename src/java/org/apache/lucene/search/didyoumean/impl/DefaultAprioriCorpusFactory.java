@@ -1,6 +1,5 @@
 package org.apache.lucene.search.didyoumean.impl;
 
-import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -36,7 +35,7 @@ import java.util.*;
  */
 public class DefaultAprioriCorpusFactory implements AprioriCorpusFactory {
 
-  public void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer) throws IOException, DatabaseException {
+  public void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer) throws IOException {
     // create an a priori index based on the inverted dictionary
 
     System.out.println("Inverting index...");
@@ -52,7 +51,7 @@ public class DefaultAprioriCorpusFactory implements AprioriCorpusFactory {
         String suggested = suggester.didYouMean(dictionary, e.getKey());
         if (suggested != null && suggested.equalsIgnoreCase(e.getKey())) {
           Document d = new Document();
-          d.add(new Field(aprioriIndexField, e.getKey(), Field.Store.NO, Field.Index.TOKENIZED, Field.TermVector.WITH_POSITIONS));
+          d.add(new Field(aprioriIndexField, e.getKey(), Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.WITH_POSITIONS));
           aprioriWriter.addDocument(d);
 //          i2++;
 //          System.out.println(i + "\t" + i2);

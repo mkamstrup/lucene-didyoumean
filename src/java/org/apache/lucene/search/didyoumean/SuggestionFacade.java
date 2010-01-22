@@ -16,7 +16,6 @@ package org.apache.lucene.search.didyoumean;
  */
 
 
-import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
@@ -24,6 +23,7 @@ import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.index.facade.IndexFacadeFactory;
 import org.apache.lucene.index.facade.InstantiatedIndexFacade;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
+import org.apache.lucene.search.didyoumean.dictionary.QueryException;
 import org.apache.lucene.search.didyoumean.impl.DefaultAprioriCorpusFactory;
 import org.apache.lucene.search.didyoumean.impl.DefaultQueryGoalTreeExtractor;
 import org.apache.lucene.search.didyoumean.impl.DefaultSuggester;
@@ -33,6 +33,7 @@ import org.apache.lucene.search.didyoumean.secondlevel.token.SecondLevelTokenPhr
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
 import org.apache.lucene.store.instantiated.InstantiatedIndex;
+import org.apache.lucene.util.Version;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,24 +96,24 @@ public class SuggestionFacade<R> {
 
   private AprioriCorpusFactory aprioriCorpusFactory;
 
-  public SuggestionFacade(File dataRootPath) throws DatabaseException {
+  public SuggestionFacade(File dataRootPath) throws QueryException {
     this(new File(dataRootPath, "dictionary"), new File(dataRootPath, "querySessionManager"));
   }
 
-  public SuggestionFacade(File dictionaryPath, File querySessionManagerPath) throws DatabaseException {
+  public SuggestionFacade(File dictionaryPath, File querySessionManagerPath) throws QueryException {
     this(dictionaryPath, querySessionManagerPath, new DefaultSuggester(), new DefaultTrainer<R>(), new DefaultQueryGoalTreeExtractor<R>(), new DefaultAprioriCorpusFactory());
   }
 
-  public SuggestionFacade(File bdbRoot, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws DatabaseException {
+  public SuggestionFacade(File bdbRoot, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws QueryException {
     this(new File(bdbRoot, "dictionary"), new File(bdbRoot, "querySessionManager"), suggester, trainer, queryGoalTreeExtractor, aprioriCorpusFactory);
   }
 
 
-  public SuggestionFacade(File dictionaryPath, File querySessionManagerPath, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws DatabaseException {
+  public SuggestionFacade(File dictionaryPath, File querySessionManagerPath, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws QueryException {
     this(new Dictionary(dictionaryPath), new QuerySessionManager<R>(querySessionManagerPath), suggester, trainer, queryGoalTreeExtractor, aprioriCorpusFactory);
   }
 
-  public SuggestionFacade(Dictionary dictionary, QuerySessionManager<R> querySessionManager, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws DatabaseException {
+  public SuggestionFacade(Dictionary dictionary, QuerySessionManager<R> querySessionManager, Suggester suggester, Trainer<R> trainer, QueryGoalTreeExtractor<R> queryGoalTreeExtractor, AprioriCorpusFactory aprioriCorpusFactory) throws QueryException {
     this.dictionary = dictionary;
     this.querySessionManager = querySessionManager;
     this.suggester = suggester;
@@ -124,16 +125,16 @@ public class SuggestionFacade<R> {
   }
 
 
-  public void close() throws DatabaseException {
+  public void close() throws IOException {
     dictionary.close();
     querySessionManager.close();
   }
 
-  public Suggestion[] didYouMean(String query, int n) throws DatabaseException {
+  public Suggestion[] didYouMean(String query, int n) throws QueryException {
     return getSuggester().didYouMean(getDictionary(), query, n);
   }
 
-  public String didYouMean(String query) throws DatabaseException {
+  public String didYouMean(String query) throws QueryException {
     // todo remove debug
     long ms = System.currentTimeMillis();
     String ret = getSuggester().didYouMean(getDictionary(), query);
@@ -145,21 +146,21 @@ public class SuggestionFacade<R> {
   /**
    * Gathers and trains all expired query sessions from the query session manager
    */
-  public synchronized void trainExpiredQuerySessions() throws DatabaseException {
+  public synchronized void trainExpiredQuerySessions() throws QueryException {
     trainExpiredQuerySessions(1);
   }
 
   /**
    * Gathers and trains all expired query sessions from the query session manager
    */
-  public synchronized void trainExpiredQuerySessions(int maxThreads) throws DatabaseException {
+  public synchronized void trainExpiredQuerySessions(int maxThreads) throws QueryException {
     trainExpiredQuerySessions(maxThreads, 10000);
   }
 
   /**
    * Gathers and trains all expired query sessions from the query session manager
    */
-  public synchronized void trainExpiredQuerySessions(int maxThreads, int batchSize) throws DatabaseException {
+  public synchronized void trainExpiredQuerySessions(int maxThreads, int batchSize) throws QueryException {
     int count = 0;
     for (; ;) {
 
@@ -188,7 +189,7 @@ public class SuggestionFacade<R> {
               try {
                 trainSession(session);
                 getQuerySessionManager().getSessionsByID().delete(session.getId());
-              } catch (DatabaseException dbe) {
+              } catch (QueryException dbe) {
                 dbe.printStackTrace();
                 // todo
               }
@@ -218,9 +219,9 @@ public class SuggestionFacade<R> {
    * and queues each such goal tree to the trainer.
    *
    * @param session the session to be trained
-   * @throws DatabaseException
+   * @throws QueryException
    */
-  public void trainSession(QuerySession<R> session) throws DatabaseException {
+  public void trainSession(QuerySession<R> session) throws QueryException {
     trainSessionQueryTree(session.getNodes().get(0));
   }
 
@@ -229,9 +230,9 @@ public class SuggestionFacade<R> {
    * and queues each such goal tree to the trainer.
    *
    * @param session any node (preferably the root) of a query goal tree
-   * @throws DatabaseException
+   * @throws QueryException
    */
-  public void trainSessionQueryTree(QueryGoalNode<R> session) throws DatabaseException {
+  public void trainSessionQueryTree(QueryGoalNode<R> session) throws QueryException {
     for (QueryGoalNode<R> goalTreeRoot : getQueryGoalTreeExtractor().extractGoalRoots(session.getRoot())) {
       getTrainer().trainGoalTree(getDictionary(), goalTreeRoot);
     }
@@ -243,9 +244,9 @@ public class SuggestionFacade<R> {
    *
    * @return
    * @throws IOException
-   * @throws DatabaseException
+   * @throws QueryException
    */
-  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory() throws IOException, DatabaseException {
+  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory() throws IOException, QueryException {
     return secondLevelSuggestionFactory(
         new IndexFacadeFactory() {
           public IndexFacade factory() throws IOException {
@@ -261,9 +262,9 @@ public class SuggestionFacade<R> {
 =   * @param indexFacadeFactory index in which to store ngrams created by all terms in the a priori corpus
    * @return a second level suggester
    * @throws IOException
-   * @throws DatabaseException
+   * @throws QueryException
    */
-  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory(IndexFacadeFactory indexFacadeFactory) throws IOException, DatabaseException {
+  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory(IndexFacadeFactory indexFacadeFactory) throws IOException, QueryException {
     return secondLevelSuggestionFactory(null, null, null, indexFacadeFactory, "apriori", indexFacadeFactory, 2, 7);
   }
 
@@ -280,16 +281,16 @@ public class SuggestionFacade<R> {
    * @param maxSuggestionsPerWord maximum number of suggestions per word in matrix. A maximum of n^w queries will be placed.
    * @return a second level suggester
    * @throws IOException
-   * @throws DatabaseException
+   * @throws QueryException
    */
-  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory(IndexFacade systemIndex, String systemIndexField, IndexFacadeFactory systemNgramIndexFacadeFactory, IndexFacadeFactory aprioriIndexFacadeFactory, String aprioriField, IndexFacadeFactory aprioriNgramIndexFacadeFactory, int minNgramSize, int maxSuggestionsPerWord) throws IOException, DatabaseException {
+  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory(IndexFacade systemIndex, String systemIndexField, IndexFacadeFactory systemNgramIndexFacadeFactory, IndexFacadeFactory aprioriIndexFacadeFactory, String aprioriField, IndexFacadeFactory aprioriNgramIndexFacadeFactory, int minNgramSize, int maxSuggestionsPerWord) throws IOException, QueryException {
     if (systemIndex != null && systemIndexField == null) {
       throw new NullPointerException("systemIndexField must be set if systemIndex is present.");
     }
 
     Map<SecondLevelSuggester, Double> ret = new HashMap<SecondLevelSuggester, Double>(2);
 
-    Analyzer analyzer = new StandardAnalyzer(Collections.emptySet());
+    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.emptySet());
 
 
     System.out.println("Creating a priori corpus...");

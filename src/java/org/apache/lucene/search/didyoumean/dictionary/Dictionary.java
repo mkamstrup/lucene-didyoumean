@@ -20,7 +20,6 @@ import org.apache.lucene.search.didyoumean.Suggester;
 import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -38,13 +37,13 @@ import java.util.Map;
  *         Date: Jul 31, 2006
  *         Time: 2:10:19 PM
  */
-public abstract class Dictionary {
+public abstract class Dictionary implements Iterable<SuggestionList> {
+
+  protected Map<SecondLevelSuggester, Double> prioritiesBySecondLevelSuggester = new HashMap<SecondLevelSuggester, Double>();
 
   public static SuggestionList suggestionListFactory(String query){
     return null;
   }
-
-  public abstract void close() throws IOException;
 
   /**
    * This function allows modification of the dictionary keys. Default implementation stripps them from all
@@ -56,14 +55,9 @@ public abstract class Dictionary {
    * @param inputKey dictionary key to be formatted
    * @return inputKey stripped from all whitespace and punctuation.
    */
-  public abstract String keyFormatter(String inputKey);
-
-  /**
-   * Implementation must pass query through keyformatter!
-   * @param query unformatted key
-   * @return suggestion list associated with key
-   */
-  public abstract SuggestionList getSuggestions(String query) throws QueryException;
+  public String keyFormatter(String inputKey) {
+    return inputKey.replaceAll("\\p{Punct}", "").replaceAll("\\s", "").toLowerCase();
+  }
 
   /**
    * This is used by the second level cache so it only comes up with suggestions that don't exist in the dictionary.
@@ -72,7 +66,10 @@ public abstract class Dictionary {
    * @param suggested the suggestion to the query to inspect if suggestable
    * @return true if the suggested is a known suggetion to the query.
    */
-  public abstract boolean isExistingSuggestion(String query, String suggested) throws QueryException;
+  public boolean isExistingSuggestion(String query, String suggested) throws QueryException {
+    SuggestionList suggestions = getSuggestions(query);
+    return suggestions != null && suggestions.containsSuggested(suggested);
+  }
 
   /**
    * Comes up with the best suggestion from the second level suggesters.
@@ -84,11 +81,40 @@ public abstract class Dictionary {
    * @param n     number of suggestions requested
    * @return the best suggestion the second level suggesters could come up with
    */
-  public abstract Suggestion[] getSecondLevelSuggestion(String query, int n) throws QueryException;
+  public Suggestion[] getSecondLevelSuggestion(String query, int n) throws QueryException {
+    Map<String, Suggestion> suggestionsBySuggested = new HashMap<String, Suggestion>();
+    for (Map.Entry<SecondLevelSuggester, Double> suggester_boost : prioritiesBySecondLevelSuggester.entrySet()) {
+      SuggestionPriorityQueue suggestions = suggester_boost.getKey().suggest(query);
+      for (int i = 0; i < n && suggestions.size() > i; i++) {
+        Suggestion suggestion = (Suggestion) suggestions.pop();
+        if (suggester_boost.getKey().hasPersistableSuggestions()) {
+          Suggestion internedSuggestion = suggestionsBySuggested.get(suggestion.getSuggested());
+          if (internedSuggestion == null) {
+            internedSuggestion = new Suggestion(suggestion.getSuggested(), 0d);
+          }
+          internedSuggestion.setScore(internedSuggestion.getScore() + suggester_boost.getValue());
+          suggestionsBySuggested.put(suggestion.getSuggested(), internedSuggestion);
+        }
+      }
+    }
 
-  public abstract Map<SecondLevelSuggester, Double> getPrioritesBySecondLevelSuggester();
+    if (suggestionsBySuggested.size() == 0) {
+      return null;
+    }
 
-  public abstract void setPrioritesBySecondLevelSuggester(Map<SecondLevelSuggester, Double> prioritesBySecondLevelSuggester);
+    Suggestion[] suggestions = suggestionsBySuggested.values().toArray(new Suggestion[suggestionsBySuggested.size()]);
+    Arrays.sort(suggestions, new Comparator<Suggestion>() {
+      public int compare(Suggestion suggestion, Suggestion suggestion1) {
+        return Double.compare(suggestion.getScore(), suggestion1.getScore());
+      }
+    });
+
+    // add to dictionary
+    SuggestionList suggestionList = suggestionListFactory(query);
+    suggestionList.addSuggested(suggestions[0].getSuggested(), 1d, suggestions[0].getCorpusQueryResults());
+    put(query, suggestionList);
+    return suggestions;
+  }
 
   /**
    * Used to extract bootstrapped a priori corpus from the dictionary
@@ -96,7 +122,38 @@ public abstract class Dictionary {
    * @throws QueryException
    * @see org.apache.lucene.search.didyoumean.SuggestionFacade#secondLevelSuggestionFactory()
    */
-  public abstract Map<String, SuggestionList> inverted() throws QueryException;
+  public Map<String, SuggestionList> inverted() throws QueryException {
+
+    // todo use a temporary bdb for this so we dont run out of memory
+
+    Map<String, SuggestionList> inverted = new HashMap<String, SuggestionList>();
+
+    for (SuggestionList suggestions : this) {
+      Suggestion s = suggestions.get(0);
+
+      SuggestionList sl = inverted.get(s.getSuggested());
+      if (sl == null) {
+        sl = new SuggestionList(s.getSuggested());
+        inverted.put(s.getSuggested(), sl);
+      }
+      sl.addSuggested(sl.getQuery(), s.getScore(), s.getCorpusQueryResults());
+    }
+
+    return inverted;
+  }
+
+  public abstract Map<SecondLevelSuggester, Double> getPrioritiesBySecondLevelSuggester();
+
+  public abstract void setPrioritiesBySecondLevelSuggester(Map<SecondLevelSuggester, Double> prioritiesBySecondLevelSuggester);
+
+  /**
+   * Implementation must pass query through keyformatter!
+   * @param query unformatted key
+   * @return suggestion list associated with key
+   */
+  public abstract SuggestionList getSuggestions(String query) throws QueryException;
+
+  public abstract void close() throws IOException;
 
   public abstract void put(String suggestion, SuggestionList suggestions);
 

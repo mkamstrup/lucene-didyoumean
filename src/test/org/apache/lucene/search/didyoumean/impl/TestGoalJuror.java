@@ -18,13 +18,10 @@ package org.apache.lucene.search.didyoumean.impl;
 
 import junit.framework.TestCase;
 import org.apache.lucene.search.didyoumean.QuerySession;
-import org.apache.lucene.search.didyoumean.SecondLevelSuggester;
-import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionFacade;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -204,7 +201,7 @@ public class TestGoalJuror extends TestCase {
     System.out.println("Creating second level suggesters from comon typos...");
     // use the dictionary built from user queries to build the token phrase and ngram suggester.
 
-    facade.getDictionary().getPrioritesBySecondLevelSuggester().putAll(facade.secondLevelSuggestionFactory());
+    facade.getDictionary().getPrioritiesBySecondLevelSuggester().putAll(facade.secondLevelSuggestionFactory());
     System.out.println("Done creating second level suggesters from comon typos...");
 
     assertEquals("the pirates", facade.didYouMean("the pilates"));

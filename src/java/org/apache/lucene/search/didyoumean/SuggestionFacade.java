@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * The simplest implementation would look something like this:
  * <pre>
  * SuggestionFacade facade = new SuggestionFacade(new File("data"));
- * facade.getDictionary().getPrioritesBySecondLevelSuggester().putAll(facade.secondLevelSuggestionFactory());
+ * facade.getDictionary().getPrioritiesBySecondLevelSuggester().putAll(facade.secondLevelSuggestionFactory());
  * ...
  * QuerySession session = facade.getQuerySessionManager().sessionFactory();
  * ...

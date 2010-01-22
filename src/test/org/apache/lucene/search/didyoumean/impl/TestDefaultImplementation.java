@@ -63,7 +63,7 @@ public class TestDefaultImplementation extends TestCase {
     int maxSuggestionsPerToken = 3;
 
     // add ngram suggester wrapped in a single token phrase suggester as second level suggester.
-    suggestionFacade.getDictionary().getPrioritesBySecondLevelSuggester().put(new SecondLevelTokenPhraseSuggester(ngramSuggester, aprioriField, false, maxSuggestionsPerToken, new WhitespaceAnalyzer(), aprioriIndex), 1d);
+    suggestionFacade.getDictionary().getPrioritiesBySecondLevelSuggester().put(new SecondLevelTokenPhraseSuggester(ngramSuggester, aprioriField, false, maxSuggestionsPerToken, new WhitespaceAnalyzer(), aprioriIndex), 1d);
   }
 
   public void testBasicTraining() throws Exception {

@@ -21,6 +21,7 @@ import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class BDBDictionary {
   private PrimaryIndex<String, SuggestionList> suggestionsByQuery;
 
 
-  public Dictionary(File bdbPath) throws DatabaseException {
+  public BDBDictionary(File bdbPath) throws IOException {
     if (!bdbPath.exists()) {
       System.out.println("Creating path " + bdbPath);
       bdbPath.mkdirs();
@@ -69,21 +70,7 @@ public class BDBDictionary {
 
   public void close() throws DatabaseException {
     store.close();
-  }
-
-  /**
-   * This function allows modification of the dictionary keys. Default implementation stripps them from all
-   * whitespace and punctuation, enabling features such as "allwork and no fun" suggesting "all work and no fun"
-   * That will of course require that the trainer have inserted the key to suggest to it's original self. Training
-   * everything the users type in might consume a lot of resources.
-   * {@link org.apache.lucene.search.didyoumean.impl.DefaultTrainer#setTrainingFinalGoalAsSelf(boolean)} ()}
-   *
-   * @param inputKey dictionary key to be formatted
-   * @return inputKey stripped from all whitespace and punctuation.
-   */
-  public String keyFormatter(String inputKey) {
-    return inputKey.replaceAll("\\p{Punct}", "").replaceAll("\\s", "").toLowerCase();
-  }
+  }  
 
   /**
    * Implementation must pass query through keyformatter!
@@ -93,102 +80,6 @@ public class BDBDictionary {
   public SuggestionList getSuggestions(String query) throws DatabaseException {
     return suggestionsByQuery.get(keyFormatter(query));
   }
-
-  /**
-   * This is used by the second level cache so it only comes up with suggestions that don't exist in the dictionary.
-   *
-   * @param query     the original query from the user
-   * @param suggested the suggestion to the query to inspect if suggestable
-   * @return true if the suggested is a known suggetion to the query.
-   */
-  public boolean isExistingSuggestion(String query, String suggested) throws DatabaseException {
-    SuggestionList suggestions = getSuggestions(query);
-    return suggestions != null && suggestions.containsSuggested(suggested);
-  }
-
-
-  private Map<SecondLevelSuggester, Double> prioritesBySecondLevelSuggester = new HashMap<SecondLevelSuggester, Double>();
-
-  /**
-   * Comes up with the best suggestion from the second level suggesters.
-   * {@link org.apache.lucene.search.didyoumean.SecondLevelSuggester}
-   * <p/>
-   * This metod also adds the suggestion to the dictionary!
-   *
-   * @param query the user input
-   * @param n     number of suggestions requested
-   * @return the best suggestion the second level suggesters could come up with
-   */
-  public Suggestion[] getSecondLevelSuggestion(String query, int n) throws DatabaseException {
-    Map<String, Suggestion> suggestionsBySuggested = new HashMap<String, Suggestion>();
-    for (Map.Entry<SecondLevelSuggester, Double> suggester_boost : prioritesBySecondLevelSuggester.entrySet()) {
-      SuggestionPriorityQueue suggestions = suggester_boost.getKey().suggest(query);
-      for (int i = 0; i < n && suggestions.size() > i; i++) {
-        Suggestion suggestion = (Suggestion) suggestions.pop();
-        if (suggester_boost.getKey().hasPersistableSuggestions()) {
-          Suggestion internedSuggestion = suggestionsBySuggested.get(suggestion.getSuggested());
-          if (internedSuggestion == null) {
-            internedSuggestion = new Suggestion(suggestion.getSuggested(), 0d);
-          }
-          internedSuggestion.setScore(internedSuggestion.getScore() + suggester_boost.getValue());
-          suggestionsBySuggested.put(suggestion.getSuggested(), internedSuggestion);
-        }
-      }
-    }
-
-    if (suggestionsBySuggested.size() == 0) {
-      return null;
-    }
-
-    Suggestion[] suggestions = suggestionsBySuggested.values().toArray(new Suggestion[suggestionsBySuggested.size()]);
-    Arrays.sort(suggestions, new Comparator<Suggestion>() {
-      public int compare(Suggestion suggestion, Suggestion suggestion1) {
-        return Double.compare(suggestion.getScore(), suggestion1.getScore());
-      }
-    });
-
-    // add to dictionary
-    SuggestionList suggestionList = suggestionListFactory(query);
-    suggestionList.addSuggested(suggestions[0].getSuggested(), 1d, suggestions[0].getCorpusQueryResults());
-    suggestionsByQuery.put(suggestionList);
-    return suggestions;
-  }
-
-
-  public Map<SecondLevelSuggester, Double> getPrioritesBySecondLevelSuggester() {
-    return prioritesBySecondLevelSuggester;
-  }
-
-  public void setPrioritesBySecondLevelSuggester(Map<SecondLevelSuggester, Double> prioritesBySecondLevelSuggester) {
-    this.prioritesBySecondLevelSuggester = prioritesBySecondLevelSuggester;
-  }
-
-  /**
-   * Used to extract bootstrapped a priori corpus from the dictionary
-   * @return a map where suggestion is key and the value is a list of misspelled words that suggests the key.
-   * @throws DatabaseException
-   * @see org.apache.lucene.search.didyoumean.SuggestionFacade#secondLevelSuggestionFactory(org.apache.lucene.index.facade.IndexFacade,org.apache.lucene.index.facade.IndexFacade)
-   */
-  public Map<String, SuggestionList> inverted() throws DatabaseException {
-
-    // todo use a temporary bdb for this so we dont run out of memory
-
-    Map<String, SuggestionList> inverted = new HashMap<String, SuggestionList>();
-
-    for (Map.Entry<String, SuggestionList> e : getSuggestionsByQuery().map().entrySet()) {
-      Suggestion s = e.getValue().get(0);
-      SuggestionList sl = inverted.get(s.getSuggested());
-      if (sl == null) {
-        sl = new SuggestionList(s.getSuggested());
-        inverted.put(s.getSuggested(), sl);
-      }
-      sl.addSuggested(e.getKey(), s.getScore(), s.getCorpusQueryResults());
-    }
-
-
-    return inverted;
-  }
-
 
   public PrimaryIndex<String, SuggestionList> getSuggestionsByQuery() {
     return suggestionsByQuery;

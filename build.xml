@@ -28,9 +28,7 @@
 
   <import file="../contrib-build.xml"/>  
 
-  <property name="je.jar" value="je-3.2.44.jar"/>
-
-  <property name="instantiated.jar" location="${common.dir}/build/contrib/queries/lucene-instnatiated-${version}.jar"/>
+  <property name="instantiated.jar" location="${common.dir}/build/contrib/instantiated/lucene-instantiated-${version}.jar"/>
   <available property="instantiated.jar.present" type="file" file="${instantiated.jar}"/>
 
   <path id="classpath">

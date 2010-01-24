@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Thrown when there is an error performing a query against a {@link Dictionary}
  *
- * @author mke
+ * @author Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
  * @since Jan 22, 2010
  */
 public class QueryException extends IOException {

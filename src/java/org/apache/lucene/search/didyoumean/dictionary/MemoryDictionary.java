@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * A {@link Dictionary} backed by an in memory map
  *
- * @author mke
+ * @author Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
  * @since Jan 22, 2010
  */
 public class MemoryDictionary extends Dictionary {

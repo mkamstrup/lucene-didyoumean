@@ -33,7 +33,7 @@ import java.util.Map;
  * If the dictionary does not contain a suggestion for a given query, it will be passed on to any available instance
  * of {@link org.apache.lucene.search.didyoumean.SecondLevelSuggester} that hopefully will comes up with a suggestion.
  *
- * @author Karl Wettin <mailto:karl.wettin@gmail.com>
+ * @author Karl Wettin <mailto:karl.wettin@gmail.com>, Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
  *         Date: Jul 31, 2006
  *         Time: 2:10:19 PM
  */

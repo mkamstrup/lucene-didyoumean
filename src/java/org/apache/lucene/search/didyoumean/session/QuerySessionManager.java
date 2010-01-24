@@ -68,7 +68,7 @@ public class QuerySessionManager<R> {
   }
 
   public synchronized QuerySession<R> querySessionFactory() throws DatabaseException {
-    // ensure unique session id, todo better solution
+    // TODO: Relicense dk.statsbiblioteket.summa.common.util.UniqueTimestampGenerator and use it for unique session ids
     try {
       Thread.sleep(1);
     } catch (InterruptedException ie) {

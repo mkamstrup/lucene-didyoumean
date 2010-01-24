@@ -58,6 +58,10 @@ public class InstantiatedIndexFacade extends IndexFacade {
         iw.close();
       }
 
+      public void commit() throws IOException {
+        iw.commit();
+      }
+
       public void optimize() throws IOException {
 
       }

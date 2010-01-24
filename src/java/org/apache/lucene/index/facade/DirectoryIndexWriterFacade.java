@@ -47,6 +47,10 @@ public class DirectoryIndexWriterFacade extends IndexWriterFacade {
     indexWriter.close();
   }
 
+  public void commit() throws IOException {
+        indexWriter.commit();
+      }
+
   public void optimize() throws IOException {
     indexWriter.optimize();
   }

@@ -33,6 +33,8 @@ public abstract class IndexWriterFacade {
 
   public abstract void close() throws IOException;
 
+  public abstract void commit() throws IOException;
+
   public abstract void optimize() throws IOException;
 
 }

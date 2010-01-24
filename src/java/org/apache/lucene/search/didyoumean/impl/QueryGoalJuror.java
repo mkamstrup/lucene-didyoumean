@@ -16,7 +16,7 @@ package org.apache.lucene.search.didyoumean.impl;
  */
 
 
-import org.apache.lucene.search.didyoumean.QueryGoalNode;
+import org.apache.lucene.search.didyoumean.session.QueryGoalNode;
 
 import java.util.List;
 

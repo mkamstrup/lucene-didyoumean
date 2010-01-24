@@ -16,10 +16,14 @@ package org.apache.lucene.search.didyoumean.impl;
  */
 
 
-import org.apache.lucene.search.didyoumean.*;
+import org.apache.lucene.search.didyoumean.EditDistance;
+import org.apache.lucene.search.didyoumean.Levenshtein;
+import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
 import org.apache.lucene.search.didyoumean.dictionary.QueryException;
 import org.apache.lucene.search.didyoumean.dictionary.SuggestionList;
+import org.apache.lucene.search.didyoumean.session.QueryGoalNode;
+import org.apache.lucene.search.didyoumean.session.Trainer;
 
 import java.util.*;
 

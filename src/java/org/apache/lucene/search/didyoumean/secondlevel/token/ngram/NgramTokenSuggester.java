@@ -18,6 +18,7 @@ package org.apache.lucene.search.didyoumean.secondlevel.token.ngram;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.facade.IndexWriterFacade;
@@ -124,7 +125,7 @@ public class NgramTokenSuggester implements TokenSuggester {
   public SuggestionPriorityQueue suggest(String queryToken, int maxSuggestions, boolean suggestSelf, IndexReader aprioriIndexReader,
                                          String aprioriIndexField, boolean suggestOnyMorePopularTokens, int hitEnumerationsPerSuggestion) throws IOException {
 
-    SuggestionPriorityQueue<Suggestion> queue = new SuggestionPriorityQueue<Suggestion>(maxSuggestions);
+    SuggestionPriorityQueue queue = new SuggestionPriorityQueue(maxSuggestions);
 
     float minScore = this.minScore;
     final EditDistance editDistance = editDistanceFactory(queryToken);
@@ -255,7 +256,7 @@ public class NgramTokenSuggester implements TokenSuggester {
     if (minTokenLength < 2) {
       minTokenLength = 2;
     }
-    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET), false);
+    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET), false, IndexWriter.MaxFieldLength.LIMITED);
     //writer.setMergeFactor(300);
     //writer.setMaxBufferedDocs(150);
 

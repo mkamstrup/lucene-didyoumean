@@ -18,7 +18,8 @@ package org.apache.lucene.search.didyoumean.impl;
 
 import org.apache.lucene.search.didyoumean.EditDistance;
 import org.apache.lucene.search.didyoumean.Levenshtein;
-import org.apache.lucene.search.didyoumean.QueryGoalNode;
+import org.apache.lucene.search.didyoumean.session.QueryGoalNode;
+import org.apache.lucene.search.didyoumean.session.QueryGoalTreeExtractor;
 
 import java.io.Serializable;
 import java.util.*;
@@ -40,7 +41,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *         Date: Aug 1, 2006
  *         Time: 5:01:14 PM
  */
-public class DefaultQueryGoalTreeExtractor<R> implements org.apache.lucene.search.didyoumean.QueryGoalTreeExtractor<R>, Serializable {
+public class DefaultQueryGoalTreeExtractor<R> implements QueryGoalTreeExtractor<R>, Serializable {
 
   private static final long serialVersionUID = 1l;
 

@@ -19,6 +19,7 @@ package org.apache.lucene.search.didyoumean;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.index.facade.IndexFacadeFactory;
 import org.apache.lucene.index.facade.InstantiatedIndexFacade;
@@ -145,7 +146,7 @@ public class SuggestionFacade<R> {
 
       final ConcurrentLinkedQueue<QuerySession<R>> queue = new ConcurrentLinkedQueue<QuerySession<R>>();
 
-      for (QuerySession querySession : getQuerySessionManager().getSessionsByID().map().values()) {
+      for (QuerySession querySession : getQuerySessionManager()) {
         if (querySession.isExpired()) {
           count++;
           queue.add((QuerySession<R>) querySession);
@@ -167,10 +168,11 @@ public class SuggestionFacade<R> {
             while ((session = queue.poll()) != null) {
               try {
                 trainSession(session);
-                getQuerySessionManager().getSessionsByID().delete(session.getId());
-              } catch (QueryException dbe) {
-                dbe.printStackTrace();
-                // todo
+                getQuerySessionManager().remove(session.getId());
+              } catch (SessionException e) {
+                e.printStackTrace(); // FIXME
+              } catch (QueryException e) {
+                  e.printStackTrace();  //FIXME
               }
             }
           }
@@ -181,8 +183,7 @@ public class SuggestionFacade<R> {
         try {
           thread.join();
         } catch (InterruptedException ie) {
-          ie.printStackTrace();
-          // todo
+          ie.printStackTrace(); // FIXME
         }
       }
 
@@ -275,11 +276,11 @@ public class SuggestionFacade<R> {
     System.out.println("Creating a priori corpus...");
     IndexFacade aprioriIndex = aprioriIndexFacadeFactory.factory();
 
-    getAprioriCorpusFactory().factory(getDictionary(), getSuggester(), aprioriIndex, aprioriField, analyzer);
+    getAprioriCorpusFactory().factory(getDictionary(), getSuggester(), aprioriIndex, aprioriField, analyzer, IndexWriter.MaxFieldLength.LIMITED);
 
     System.out.println("Creating ngram index from a priori corpus terms...");
     IndexFacade aprioriNgramIndex = aprioriNgramIndexFacadeFactory.factory();
-    aprioriNgramIndex.indexWriterFactory(null, true).close(); // reset
+    aprioriNgramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close(); // reset
     NgramTokenSuggester ngramTokenSuggester = new NgramTokenSuggester(aprioriNgramIndex);
     IndexReader aprioriIndexReader = aprioriIndex.indexReaderFactory();
     ngramTokenSuggester.indexDictionary(new TermEnumIterator(aprioriIndexReader, aprioriField), minNgramSize);
@@ -290,7 +291,7 @@ public class SuggestionFacade<R> {
     if (systemIndex != null) {
       System.out.println("Creating ngram index from system corpus terms...");
       IndexFacade systemNgramIndex = systemNgramIndexFacadeFactory.factory();
-      systemNgramIndex.indexWriterFactory(null, true).close(); // reset
+      systemNgramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close(); // reset
       NgramTokenSuggester sysetmNgramTokenSuggester = new NgramTokenSuggester(systemNgramIndex);
       IndexReader systemIndexReader = systemIndex.indexReaderFactory();
       ngramTokenSuggester.indexDictionary(new TermEnumIterator(systemIndexReader, systemIndexField), minNgramSize);

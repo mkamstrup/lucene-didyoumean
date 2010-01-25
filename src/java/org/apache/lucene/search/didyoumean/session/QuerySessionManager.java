@@ -21,16 +21,29 @@ package org.apache.lucene.search.didyoumean.session;
  * @author Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
  * @since 2010-01-24
  */
-public interface QuerySessionManager<R> extends Iterable<QuerySession<R>> {
+public abstract class QuerySessionManager<R> implements Iterable<QuerySession<R>> {
 
-  public void close() throws SessionException;
+  public abstract void close() throws SessionException;
 
-  public void put(QuerySession<R> session) throws SessionException;
+  public abstract void put(QuerySession<R> session) throws SessionException;
 
-  public QuerySession<R> remove(String sessionId) throws SessionException;
+  public abstract QuerySession<R> remove(String sessionId) throws SessionException;
 
-  public QuerySession<R> querySessionFactory() throws SessionException;
+  public synchronized QuerySession<R> querySessionFactory() throws SessionException {
+    // TODO: Relicense dk.statsbiblioteket.summa.common.util.UniqueTimestampGenerator and use it for unique session ids
+    try {
+      Thread.sleep(1);
+    } catch (InterruptedException ie) {
+      // whatever
+    }
+    return querySessionFactory(String.valueOf(System.currentTimeMillis()));
+  }
 
-  public QuerySession<R> querySessionFactory(String id) throws SessionException;
+  public QuerySession<R> querySessionFactory(String id) throws SessionException {
+    QuerySession<R> querySession = new QuerySession<R>();
+    querySession.setId(id);
+    put(querySession);
+    return querySession;
+  }
 
 }

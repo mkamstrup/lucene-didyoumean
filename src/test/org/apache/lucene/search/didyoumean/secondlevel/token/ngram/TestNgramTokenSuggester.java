@@ -47,12 +47,12 @@ public class TestNgramTokenSuggester extends TestCase {
 
     //create a user index
     aprioriIndex = new DirectoryIndexFacade(new RAMDirectory());
-    IndexWriterFacade writer = aprioriIndex.indexWriterFactory(new SimpleAnalyzer(), true);
+    IndexWriterFacade writer = aprioriIndex.indexWriterFactory(new SimpleAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
 
     for (int i = 0; i < 1000; i++) {
       Document doc = new Document();
-      doc.add(new Field("field1", intToEnglish(i), Field.Store.YES, Field.Index.TOKENIZED));
-      doc.add(new Field("field2", intToEnglish(i + 1), Field.Store.YES, Field.Index.TOKENIZED));
+      doc.add(new Field("field1", intToEnglish(i), Field.Store.YES, Field.Index.ANALYZED));
+      doc.add(new Field("field2", intToEnglish(i + 1), Field.Store.YES, Field.Index.ANALYZED));
       writer.addDocument(doc);
     }
 
@@ -61,7 +61,7 @@ public class TestNgramTokenSuggester extends TestCase {
 
     // create the spellChecker
     IndexFacade ngramIndex = new DirectoryIndexFacade(new RAMDirectory());
-    ngramIndex.indexWriterFactory(null, true).close();
+    ngramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
     ngramTokenSuggester = new NgramTokenSuggester(ngramIndex);
   }
 

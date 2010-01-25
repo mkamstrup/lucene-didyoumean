@@ -21,7 +21,8 @@ import junit.framework.TestCase;
 
 import java.util.List;
 
-import org.apache.lucene.search.didyoumean.QueryGoalNode;
+import org.apache.lucene.search.didyoumean.session.QueryGoalNode;
+import org.apache.lucene.search.didyoumean.session.QueryGoalTreeExtractor;
 
 /**
  * @author Karl Wettin <mailto:karl.wettin@gmail.com>
@@ -30,14 +31,14 @@ import org.apache.lucene.search.didyoumean.QueryGoalNode;
  */
 public abstract class TestQueryGoalExtractor<R> extends TestCase {
 
-  private org.apache.lucene.search.didyoumean.QueryGoalTreeExtractor goalTreeExtractor;
+  private QueryGoalTreeExtractor goalTreeExtractor;
 
   @Override
   protected void setUp() throws Exception {
     goalTreeExtractor = goalTreeExtractorFactory();
   }
 
-  protected abstract org.apache.lucene.search.didyoumean.QueryGoalTreeExtractor goalTreeExtractorFactory();
+  protected abstract QueryGoalTreeExtractor goalTreeExtractorFactory();
 
   public void testSingleNode() throws Exception {
     assertEquals(1, goalTreeExtractor.extractGoalRoots(new QueryGoalNode<R>(null, "heroes of knight and magic", 10, null, 1l)).size());

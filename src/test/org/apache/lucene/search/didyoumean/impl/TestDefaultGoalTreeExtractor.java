@@ -18,6 +18,7 @@ package org.apache.lucene.search.didyoumean.impl;
 
 
 import org.apache.lucene.search.didyoumean.impl.DefaultQueryGoalTreeExtractor;
+import org.apache.lucene.search.didyoumean.session.QueryGoalTreeExtractor;
 
 /**
  * @author Karl Wettin <mailto:karl.wettin@gmail.com>
@@ -27,7 +28,7 @@ import org.apache.lucene.search.didyoumean.impl.DefaultQueryGoalTreeExtractor;
 public class TestDefaultGoalTreeExtractor extends TestQueryGoalExtractor<Integer> {
 
 
-  protected org.apache.lucene.search.didyoumean.QueryGoalTreeExtractor goalTreeExtractorFactory() {
+  protected QueryGoalTreeExtractor goalTreeExtractorFactory() {
     return new DefaultQueryGoalTreeExtractor<Integer>();
   }
 }

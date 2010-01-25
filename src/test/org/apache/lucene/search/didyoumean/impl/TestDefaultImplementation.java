@@ -18,9 +18,12 @@ package org.apache.lucene.search.didyoumean.impl;
 
 
 import junit.framework.TestCase;
-import org.apache.lucene.search.didyoumean.QueryGoalNode;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.search.didyoumean.session.QueryGoalNode;
+import org.apache.lucene.search.didyoumean.Suggester;
 import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionFacade;
+import org.apache.lucene.search.didyoumean.dictionary.MemoryDictionary;
 import org.apache.lucene.search.didyoumean.secondlevel.token.SecondLevelTokenPhraseSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
@@ -28,6 +31,8 @@ import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.index.facade.DirectoryIndexFacade;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
+import org.apache.lucene.search.didyoumean.session.MemoryQuerySessionManager;
+import org.apache.lucene.search.didyoumean.session.QueryGoalTreeExtractor;
 import org.apache.lucene.store.RAMDirectory;
 
 import java.io.File;
@@ -44,16 +49,16 @@ public class TestDefaultImplementation extends TestCase {
   @Override
   protected void setUp() throws Exception {
 
-    suggestionFacade = new SuggestionFacade<Integer>(new File("data/TestDefaultImplementation/" + String.valueOf(System.currentTimeMillis())));
+    suggestionFacade = new SuggestionFacade<Integer>(new MemoryDictionary(), new MemoryQuerySessionManager<Integer>(), new DefaultSuggester(), null, new DefaultQueryGoalTreeExtractor<Integer>(), new DefaultAprioriCorpusFactory());
 
     // your primary index that suggestions must match.
     IndexFacade aprioriIndex = new DirectoryIndexFacade(new RAMDirectory());
-    aprioriIndex.indexWriterFactory(null, true).close();
+    aprioriIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
     String aprioriField = "title";
 
     // build the ngram suggester
     IndexFacade ngramIndex = new DirectoryIndexFacade(new RAMDirectory());
-    ngramIndex.indexWriterFactory(null, true).close();
+    ngramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
     NgramTokenSuggester ngramSuggester = new NgramTokenSuggester(ngramIndex);
 
     IndexReader aprioriReader = aprioriIndex.indexReaderFactory();

@@ -30,6 +30,7 @@ import org.apache.lucene.search.didyoumean.secondlevel.token.TokenPhraseSuggeste
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 
 import java.util.Collections;
 
@@ -47,13 +48,13 @@ public class TestTokenPhraseSuggester extends TestCase {
   public void testPhraseSuggester() throws Exception {
 
     IndexFacade aprioriIndex = new DirectoryIndexFacade(new RAMDirectory());
-    aprioriIndex.indexWriterFactory(null, true).close();
+    aprioriIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
 
-    Analyzer analyzer = new StandardAnalyzer(Collections.EMPTY_SET);
+    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET);
     final String field = "field";
 
     // the apriori index - used to build ngrams and to check if suggestions are any good.
-    IndexWriterFacade indexWriter = aprioriIndex.indexWriterFactory(analyzer, true);
+    IndexWriterFacade indexWriter = aprioriIndex.indexWriterFactory(analyzer, true, IndexWriter.MaxFieldLength.LIMITED);
     addDocument(indexWriter, field, "heroes of might and magic III complete", Field.TermVector.WITH_POSITIONS_OFFSETS);
     addDocument(indexWriter, field, "it might be the best game ever made", Field.TermVector.WITH_POSITIONS_OFFSETS);
     addDocument(indexWriter, field, "forget about the rest", Field.TermVector.WITH_POSITIONS_OFFSETS);
@@ -66,7 +67,7 @@ public class TestTokenPhraseSuggester extends TestCase {
 
     // the single token suggester
     IndexFacade ngramIndex = new DirectoryIndexFacade(new RAMDirectory());
-    ngramIndex.indexWriterFactory(null, true).close();
+    ngramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
 
     NgramTokenSuggester tokenSuggester = new NgramTokenSuggester(ngramIndex);
     tokenSuggester.indexDictionary(new TermEnumIterator(reader, field), 2);
@@ -97,7 +98,7 @@ public class TestTokenPhraseSuggester extends TestCase {
 
   private void addDocument(IndexWriterFacade indexWriter, String field, String text, Field.TermVector termVector) throws Exception {
     Document document = new Document();
-    document.add(new Field(field, text, Field.Store.YES, Field.Index.TOKENIZED, termVector));
+    document.add(new Field(field, text, Field.Store.YES, Field.Index.ANALYZED, termVector));
     indexWriter.addDocument(document);
   }
 

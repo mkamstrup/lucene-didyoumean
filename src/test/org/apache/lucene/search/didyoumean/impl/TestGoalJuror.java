@@ -17,8 +17,11 @@ package org.apache.lucene.search.didyoumean.impl;
 
 
 import junit.framework.TestCase;
-import org.apache.lucene.search.didyoumean.QuerySession;
+import org.apache.lucene.search.didyoumean.dictionary.QueryException;
+import org.apache.lucene.search.didyoumean.session.QuerySession;
 import org.apache.lucene.search.didyoumean.SuggestionFacade;
+import org.apache.lucene.search.didyoumean.dictionary.MemoryDictionary;
+import org.apache.lucene.search.didyoumean.session.MemoryQuerySessionManager;
 
 import java.io.*;
 import java.net.URL;
@@ -46,10 +49,13 @@ public class TestGoalJuror extends TestCase {
   /** left out here for closure reasons */
   private SuggestionFacade<Integer> facade;
 
+  private SuggestionFacade<Integer> suggestionFacadeFactory() throws QueryException {
+    return new SuggestionFacade<Integer>(new MemoryDictionary(), new MemoryQuerySessionManager<Integer>(), new DefaultSuggester(), null, new DefaultQueryGoalTreeExtractor<Integer>(), new DefaultAprioriCorpusFactory());
+  }
 
   public void testConcept() throws Exception {
 
-    facade = new SuggestionFacade<Integer>(new File(dataRootPath, "TestGoalJuror.testConcept/" + String.valueOf(System.currentTimeMillis())));
+    facade = suggestionFacadeFactory();
 
     QuerySession<Integer> session = facade.getQuerySessionManager().querySessionFactory();
     session.query("heroes of night and magic", 0, null, 1l);
@@ -57,7 +63,7 @@ public class TestGoalJuror extends TestCase {
     session.query("heroes of might and magic", 10, null, 3l);
 
     assertTrue(session.isExpired());
-    facade.getQuerySessionManager().getSessionsByID().put(session);
+    facade.getQuerySessionManager().put(session);
 
     facade.trainExpiredQuerySessions();
 
@@ -76,13 +82,10 @@ public class TestGoalJuror extends TestCase {
     // no goals specified. let the goal juror figure that out.
     // all queries are lower cased.
 
-    File facadePath = new File(dataRootPath, "backup");
-    // File facadePath = new File(dataRootPath, "TestGoalJuror.testImportData/" + String.valueOf(System.currentTimeMillis());
-
-    facade = new SuggestionFacade<Integer>(facadePath);
+    facade = new SuggestionFacade<Integer>(new MemoryDictionary(), new MemoryQuerySessionManager<Integer>(), new DefaultSuggester(), null, new DefaultQueryGoalTreeExtractor<Integer>(), new DefaultAprioriCorpusFactory());
 
 
-    if (facade.getDictionary().getSuggestionsByQuery().map().size() == 0) {
+    if (facade.getDictionary().size() == 0) {
 
       File testDataFile = new File(dataRootPath, "queries_grouped.txt");
       if (!testDataFile.exists()) {
@@ -116,7 +119,7 @@ public class TestGoalJuror extends TestCase {
         String[] values = line.split("\t");
         if (!values[0].equals(sessionID)) {
           if (querySession != null) {
-            facade.getQuerySessionManager().getSessionsByID().put(querySession);
+            facade.getQuerySessionManager().put(querySession);
             if (cnt == 10000) {
 
               // throws a nasty exception!
@@ -151,14 +154,14 @@ public class TestGoalJuror extends TestCase {
         long timestamp = Long.valueOf(values[1]) * 1000;
         querySession.query(query, hits, null, timestamp);
       }
-      facade.getQuerySessionManager().getSessionsByID().put(querySession);
+      facade.getQuerySessionManager().put(querySession);
       br.close();
 
       facade.trainExpiredQuerySessions(4);
 
       System.out.println("Reopening persistent dictionary.");
       facade.close();
-      facade = new SuggestionFacade<Integer>(facadePath);
+      facade = suggestionFacadeFactory();
 
     }
 
@@ -229,7 +232,7 @@ public class TestGoalJuror extends TestCase {
 
     System.out.println("Reopening persistent dictionary.");
     facade.close();
-    facade = new SuggestionFacade<Integer>(facadePath);
+    facade = suggestionFacadeFactory();
     System.out.println("Persistent dictionary reopened.");
 
     // same tests again, to make sure persistency works.

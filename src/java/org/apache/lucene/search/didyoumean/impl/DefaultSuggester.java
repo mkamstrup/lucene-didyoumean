@@ -90,7 +90,7 @@ public class DefaultSuggester extends AbstractSuggester implements Serializable 
             score -= 0.01d;
             if (!suggestions.containsSuggested(suggestion.getSuggested())) {
               suggestions.addSuggested(suggestion.getSuggested(), score, suggestion.getCorpusQueryResults());
-              dictionary.put(suggestion.getSuggested(), suggestions);
+              dictionary.put(suggestions);
             }
           }
         }

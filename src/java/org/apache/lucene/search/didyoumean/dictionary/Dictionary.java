@@ -27,7 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Essentially a dictionary with a bunch of weighted suggestions, created by a {@link org.apache.lucene.search.didyoumean.Trainer}
+ * Essentially a dictionary with a bunch of weighted suggestions, created by a
+ * {@link org.apache.lucene.search.didyoumean.session.Trainer}
  * and navigated by a {@link org.apache.lucene.search.didyoumean.Suggester}.
  * <p/>
  * If the dictionary does not contain a suggestion for a given query, it will be passed on to any available instance
@@ -41,8 +42,8 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
 
   protected Map<SecondLevelSuggester, Double> prioritiesBySecondLevelSuggester = new HashMap<SecondLevelSuggester, Double>();
 
-  public static SuggestionList suggestionListFactory(String query){
-    return null;
+  public SuggestionList suggestionListFactory(String query){
+    return new SuggestionList(keyFormatter(query));
   }
 
   /**
@@ -112,7 +113,7 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
     // add to dictionary
     SuggestionList suggestionList = suggestionListFactory(query);
     suggestionList.addSuggested(suggestions[0].getSuggested(), 1d, suggestions[0].getCorpusQueryResults());
-    put(query, suggestionList);
+    put(suggestionList);
     return suggestions;
   }
 
@@ -151,7 +152,7 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
   }
 
   /**
-   * Implementation must pass query through keyformatter!
+   * Implementation must pass {@code query} through {@link #keyFormatter}!
    * @param query unformatted key
    * @return suggestion list associated with key
    */
@@ -159,7 +160,7 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
 
   public abstract void close() throws IOException;
 
-  public abstract void put(String suggestion, SuggestionList suggestions);
+  public abstract void put(SuggestionList suggestions);
 
   /**
    * Scans the dictionary for queries that suggests a query

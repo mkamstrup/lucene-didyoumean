@@ -50,7 +50,7 @@ public class TestGoalJuror extends TestCase {
   private SuggestionFacade<Integer> facade;
 
   private SuggestionFacade<Integer> suggestionFacadeFactory() throws QueryException {
-    return new SuggestionFacade<Integer>(new MemoryDictionary(), new MemoryQuerySessionManager<Integer>(), new DefaultSuggester(), null, new DefaultQueryGoalTreeExtractor<Integer>(), new DefaultAprioriCorpusFactory());
+    return new SuggestionFacade<Integer>(new MemoryDictionary(), new MemoryQuerySessionManager<Integer>(), new DefaultSuggester(), new DefaultTrainer(), new DefaultQueryGoalTreeExtractor<Integer>(), new DefaultAprioriCorpusFactory());
   }
 
   public void testConcept() throws Exception {

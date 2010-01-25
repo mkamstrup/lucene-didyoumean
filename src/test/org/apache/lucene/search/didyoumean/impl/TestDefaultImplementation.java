@@ -49,7 +49,7 @@ public class TestDefaultImplementation extends TestCase {
   @Override
   protected void setUp() throws Exception {
 
-    suggestionFacade = new SuggestionFacade<Integer>(new MemoryDictionary(), new MemoryQuerySessionManager<Integer>(), new DefaultSuggester(), null, new DefaultQueryGoalTreeExtractor<Integer>(), new DefaultAprioriCorpusFactory());
+    suggestionFacade = new SuggestionFacade<Integer>(new MemoryDictionary(), new MemoryQuerySessionManager<Integer>(), new DefaultSuggester(), new DefaultTrainer(), new DefaultQueryGoalTreeExtractor<Integer>(), new DefaultAprioriCorpusFactory());
 
     // your primary index that suggestions must match.
     IndexFacade aprioriIndex = new DirectoryIndexFacade(new RAMDirectory());

@@ -19,7 +19,7 @@ public class MemoryDictionary extends Dictionary {
 
   @Override
   public SuggestionList getSuggestions(String query) {
-    return store.get(query);
+    return store.get(keyFormatter(query));
   }
 
   @Override
@@ -28,8 +28,8 @@ public class MemoryDictionary extends Dictionary {
   }
 
   @Override
-  public void put(String query, SuggestionList suggestions) {
-    store.put(query, suggestions);
+  public void put(SuggestionList suggestions) {
+    store.put(suggestions.getQuery(), suggestions);
   }
 
   @Override

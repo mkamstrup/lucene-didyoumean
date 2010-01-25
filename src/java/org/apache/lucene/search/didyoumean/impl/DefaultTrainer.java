@@ -86,7 +86,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
         }
 
         suggestions.sort();
-        dictionary.put(suggestion.getSuggested(), suggestions);
+        dictionary.put(suggestions);
       }
     }
 
@@ -194,7 +194,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
             String suggestedQuery = nodesWithGoals.get(0).getQuery();
             if (!suggestions.containsSuggested(suggestedQuery)) {
               suggestions.addSuggested(suggestedQuery, 1d, nodesWithGoals.get(0).getcorpusQueryResults());
-              dictionary.put(suggestedQuery, suggestions);
+              dictionary.put(suggestions);
             }
 
             // uncomment to adapt every time
@@ -239,7 +239,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
   private void adaptPositive(Dictionary dictionary, String suggested, Integer suggestedCorpusQueryResults, QueryGoalNode<R> dictionaryKeyNode) throws QueryException {
     SuggestionList suggestions = dictionary.getSuggestions(dictionaryKeyNode.getQuery());
     if (suggestions == null) {
-      suggestions = Dictionary.suggestionListFactory(dictionaryKeyNode.getQuery());
+      suggestions = dictionary.suggestionListFactory(dictionaryKeyNode.getQuery());
       suggestions.addSuggested(suggested, 1d, suggestedCorpusQueryResults);
     } else {
       boolean suggestionUpdated = false;
@@ -261,7 +261,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
       }
       suggestions.sort();
     }
-    dictionary.put(suggested, suggestions);
+    dictionary.put(suggestions);
   }
 
 

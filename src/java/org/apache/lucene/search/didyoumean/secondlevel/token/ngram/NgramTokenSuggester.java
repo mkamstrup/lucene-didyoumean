@@ -181,8 +181,8 @@ public class NgramTokenSuggester implements TokenSuggester {
       }
 
       // edit distance/normalize with the minScore word length
-      suggestion.setScore(1.0d - ((double) editDistance.getDistance(suggestion.getSuggested()) / Math
-          .min(suggestion.getSuggested().length(), tokenLength)));
+      suggestion.setScore(1.0d - ((double) editDistance.getDistance(suggestion.getSuggested()) /
+                                   Math.min(suggestion.getSuggested().length(), tokenLength)));
       if (suggestion.getScore() < minScore) {
         continue;
       }
@@ -228,6 +228,7 @@ public class NgramTokenSuggester implements TokenSuggester {
    */
   private String[] formGrams(String text, int ng) {
     int len = text.length();
+    ng = Math.min(ng, len);
     String[] res = new String[len - ng + 1];
     for (int i = 0; i < len - ng + 1; i++) {
       res[i] = text.substring(i, i + ng);
@@ -280,7 +281,7 @@ public class NgramTokenSuggester implements TokenSuggester {
       unflushedTokens.add(token);
 
     }
-
+    
     writer.optimize();
     writer.close();
 

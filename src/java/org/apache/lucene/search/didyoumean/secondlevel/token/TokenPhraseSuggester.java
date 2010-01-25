@@ -183,7 +183,7 @@ public abstract class TokenPhraseSuggester {
 
     TokenStream ts = getQueryAnalyzer().tokenStream(null, new StringReader(query));
     try {
-      do {
+      while (ts.incrementToken()) {
         try {
           TermAttribute term = ts.getAttribute(TermAttribute.class);
           String termString = term.term();
@@ -196,7 +196,7 @@ public abstract class TokenPhraseSuggester {
         } catch (IOException ioe) {
           throw new RuntimeException("Exception caught while looking for a suggestion to " + query, ioe);
         }
-      } while (ts.incrementToken());
+      }
     } catch (IOException ioe) {
       throw new RuntimeException("Error tokenizing " + query, ioe);
     }
@@ -276,10 +276,10 @@ public abstract class TokenPhraseSuggester {
 
         StringBuilder sb = new StringBuilder(10 * matrix.size());
         for (Suggestion suggestion : suggestions) {
+          if ("".equals(suggestion.getSuggested())) continue;
+          if (sb.length() > 0) sb.append(' ');
           sb.append(suggestion.getSuggested());
-          sb.append(" ");
         }
-        sb.deleteCharAt(sb.length() - 1);
         String phrase = sb.toString();
 
         //System.out.println(cnt + "\t" + phrase);

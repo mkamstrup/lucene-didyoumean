@@ -25,6 +25,8 @@ import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Karl Wettin <mailto:karl.wettin@gmail.com>
@@ -50,11 +52,12 @@ public class TokenPhraseSuggesterImpl extends TokenPhraseSuggester {
   }
 
   protected Query suggestionAprioriQueryFactory(Suggestion[] suggestions) {
-    SpanTermQuery[] clauses = new SpanTermQuery[suggestions.length];
+    List<SpanTermQuery> clauses = new LinkedList<SpanTermQuery>();
     for (int i = 0; i < suggestions.length; i++) {
-      clauses[i] = new SpanTermQuery(new Term(getAprioriIndexField(), suggestions[i].getSuggested()));
+      if (suggestions[i].getSuggested().length() == 0) continue;
+      clauses.add(new SpanTermQuery(new Term(getAprioriIndexField(), suggestions[i].getSuggested())));
     }
-    return new SpanNearQuery(clauses, 5, false);
+    return new SpanNearQuery(clauses.toArray(new SpanTermQuery[clauses.size()]), 5, false);
   }
 
   public IndexFacade getAprioriIndex() {

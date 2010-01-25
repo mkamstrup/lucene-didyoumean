@@ -37,6 +37,7 @@ public class SuggestionPriorityQueue extends PriorityQueue<Suggestion> {
   }
 
   public Suggestion[] toArray() {
+    // FIXME: This implementation has quite an overhead, and has the undocumented sideeffect of emptying the heap
     LinkedList<Suggestion> list = new LinkedList<Suggestion>();
     Suggestion s;
     while ((s = (Suggestion) pop()) != null) {

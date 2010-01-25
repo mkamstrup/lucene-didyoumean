@@ -73,6 +73,7 @@ public class MultiTokenSuggester extends TokenPhraseSuggester implements SecondL
   protected Query suggestionAprioriQueryFactory(Suggestion[] suggestions) {
     BooleanQuery bq = new BooleanQuery();
     for (Suggestion suggestion : suggestions) {
+      if (suggestion.getSuggested().length() == 0) continue;
       bq.add(new TermQuery(new Term(getAprioriIndexField(), suggestion.getSuggested())), BooleanClause.Occur.MUST);
     }
     return bq;

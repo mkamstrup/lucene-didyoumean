@@ -30,16 +30,24 @@ import java.io.IOException;
 public class DirectoryIndexFacade extends IndexFacade {
 
   private Directory directory;
+  private IndexWriter.MaxFieldLength mfl;
 
   public DirectoryIndexFacade(Directory directory) throws IOException {
-    this.directory = directory;
+    this(directory, IndexWriter.MaxFieldLength.LIMITED);
   }
 
+  public DirectoryIndexFacade(Directory directory, IndexWriter.MaxFieldLength mfl) throws IOException {
+    this.directory = directory;
+    this.mfl = mfl;
+  }
+
+  @Override
   public IndexReader indexReaderFactory() throws IOException {
     return IndexReader.open(directory);
   }
 
-  public IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create, IndexWriter.MaxFieldLength mfl) throws IOException {
+  @Override
+  public IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create) throws IOException {
     return new DirectoryIndexWriterFacade(directory, analyzer, create, mfl);
   }
 }

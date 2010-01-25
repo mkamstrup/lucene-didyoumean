@@ -48,13 +48,13 @@ public class TestTokenPhraseSuggester extends TestCase {
   public void testPhraseSuggester() throws Exception {
 
     IndexFacade aprioriIndex = new DirectoryIndexFacade(new RAMDirectory());
-    aprioriIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
+    aprioriIndex.indexWriterFactory(null, true).close();
 
     Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET);
     final String field = "field";
 
     // the apriori index - used to build ngrams and to check if suggestions are any good.
-    IndexWriterFacade indexWriter = aprioriIndex.indexWriterFactory(analyzer, true, IndexWriter.MaxFieldLength.LIMITED);
+    IndexWriterFacade indexWriter = aprioriIndex.indexWriterFactory(analyzer, true);
     addDocument(indexWriter, field, "heroes of might and magic III complete", Field.TermVector.WITH_POSITIONS_OFFSETS);
     addDocument(indexWriter, field, "it might be the best game ever made", Field.TermVector.WITH_POSITIONS_OFFSETS);
     addDocument(indexWriter, field, "forget about the rest", Field.TermVector.WITH_POSITIONS_OFFSETS);
@@ -67,7 +67,7 @@ public class TestTokenPhraseSuggester extends TestCase {
 
     // the single token suggester
     IndexFacade ngramIndex = new DirectoryIndexFacade(new RAMDirectory());
-    ngramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
+    ngramIndex.indexWriterFactory(null, true).close();
 
     NgramTokenSuggester tokenSuggester = new NgramTokenSuggester(ngramIndex);
     tokenSuggester.indexDictionary(new TermEnumIterator(reader, field), 2);

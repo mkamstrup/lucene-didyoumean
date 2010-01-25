@@ -43,6 +43,6 @@ public interface AprioriCorpusFactory {
    * @throws IOException
    * @throws QueryException
    */
-  public abstract void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer, IndexWriter.MaxFieldLength mfl) throws IOException, QueryException;
+  public void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer) throws IOException, QueryException;
 
 }

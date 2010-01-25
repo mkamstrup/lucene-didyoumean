@@ -36,13 +36,13 @@ import java.util.*;
  */
 public class DefaultAprioriCorpusFactory implements AprioriCorpusFactory {
 
-  public void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer, IndexWriter.MaxFieldLength mfl) throws IOException {
+  public void factory(Dictionary dictionary, Suggester suggester, IndexFacade aprioriIndex, String aprioriIndexField, Analyzer aprioriAnalyzer) throws IOException {
     // create an a priori index based on the inverted dictionary
 
     System.out.println("Inverting index...");
     Map<String, SuggestionList> inverted = dictionary.inverted();
 
-    IndexWriterFacade aprioriWriter = aprioriIndex.indexWriterFactory(aprioriAnalyzer, true, mfl);
+    IndexWriterFacade aprioriWriter = aprioriIndex.indexWriterFactory(aprioriAnalyzer, true);
 
 //    int i=0;
 //    int i2=0;

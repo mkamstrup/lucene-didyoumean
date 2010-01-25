@@ -263,7 +263,7 @@ public class SuggestionFacade<R> {
    * @throws IOException
    * @throws QueryException
    */
-  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory(IndexFacade systemIndex, String systemIndexField, IndexFacadeFactory systemNgramIndexFacadeFactory, IndexFacadeFactory aprioriIndexFacadeFactory, String aprioriField, IndexFacadeFactory aprioriNgramIndexFacadeFactory, int minNgramSize, int maxSuggestionsPerWord) throws IOException, QueryException {
+  public Map<SecondLevelSuggester, Double> secondLevelSuggestionFactory(IndexFacade systemIndex, String systemIndexField, IndexFacadeFactory systemNgramIndexFacadeFactory, IndexFacadeFactory aprioriIndexFacadeFactory, String aprioriField, IndexFacadeFactory aprioriNgramIndexFacadeFactory, int minNgramSize, int maxSuggestionsPerWord) throws IOException {
     if (systemIndex != null && systemIndexField == null) {
       throw new NullPointerException("systemIndexField must be set if systemIndex is present.");
     }
@@ -276,11 +276,11 @@ public class SuggestionFacade<R> {
     System.out.println("Creating a priori corpus...");
     IndexFacade aprioriIndex = aprioriIndexFacadeFactory.factory();
 
-    getAprioriCorpusFactory().factory(getDictionary(), getSuggester(), aprioriIndex, aprioriField, analyzer, IndexWriter.MaxFieldLength.LIMITED);
+    getAprioriCorpusFactory().factory(getDictionary(), getSuggester(), aprioriIndex, aprioriField, analyzer);
 
     System.out.println("Creating ngram index from a priori corpus terms...");
     IndexFacade aprioriNgramIndex = aprioriNgramIndexFacadeFactory.factory();
-    aprioriNgramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close(); // reset
+    aprioriNgramIndex.indexWriterFactory(null, true).close(); // reset
     NgramTokenSuggester ngramTokenSuggester = new NgramTokenSuggester(aprioriNgramIndex);
     IndexReader aprioriIndexReader = aprioriIndex.indexReaderFactory();
     ngramTokenSuggester.indexDictionary(new TermEnumIterator(aprioriIndexReader, aprioriField), minNgramSize);
@@ -291,7 +291,7 @@ public class SuggestionFacade<R> {
     if (systemIndex != null) {
       System.out.println("Creating ngram index from system corpus terms...");
       IndexFacade systemNgramIndex = systemNgramIndexFacadeFactory.factory();
-      systemNgramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close(); // reset
+      systemNgramIndex.indexWriterFactory(null, true).close(); // reset
       NgramTokenSuggester sysetmNgramTokenSuggester = new NgramTokenSuggester(systemNgramIndex);
       IndexReader systemIndexReader = systemIndex.indexReaderFactory();
       ngramTokenSuggester.indexDictionary(new TermEnumIterator(systemIndexReader, systemIndexField), minNgramSize);

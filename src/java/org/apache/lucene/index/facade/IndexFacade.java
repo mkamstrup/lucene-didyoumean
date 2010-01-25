@@ -30,6 +30,6 @@ public abstract class IndexFacade {
 
   public abstract IndexReader indexReaderFactory() throws IOException;
 
-  public abstract IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create, IndexWriter.MaxFieldLength mfl) throws IOException;
+  public abstract IndexWriterFacade indexWriterFactory(Analyzer analyzer, boolean create) throws IOException;
 
 }

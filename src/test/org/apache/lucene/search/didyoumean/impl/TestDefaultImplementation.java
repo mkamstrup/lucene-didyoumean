@@ -53,12 +53,12 @@ public class TestDefaultImplementation extends TestCase {
 
     // your primary index that suggestions must match.
     IndexFacade aprioriIndex = new DirectoryIndexFacade(new RAMDirectory());
-    aprioriIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
+    aprioriIndex.indexWriterFactory(null, true).close();
     String aprioriField = "title";
 
     // build the ngram suggester
     IndexFacade ngramIndex = new DirectoryIndexFacade(new RAMDirectory());
-    ngramIndex.indexWriterFactory(null, true, IndexWriter.MaxFieldLength.LIMITED).close();
+    ngramIndex.indexWriterFactory(null, true).close();
     NgramTokenSuggester ngramSuggester = new NgramTokenSuggester(ngramIndex);
 
     IndexReader aprioriReader = aprioriIndex.indexReaderFactory();

@@ -32,16 +32,22 @@ import java.io.IOException;
 public class InstantiatedIndexFacade extends IndexFacade {
 
   private InstantiatedIndex ii;
+  private IndexWriter.MaxFieldLength mfl;
+
+  public InstantiatedIndexFacade(InstantiatedIndex ii, IndexWriter.MaxFieldLength mfl) {
+    this.ii = ii;
+    this.mfl = mfl;
+  }
 
   public InstantiatedIndexFacade(InstantiatedIndex ii) {
-    this.ii = ii;
+    this(ii, IndexWriter.MaxFieldLength.LIMITED);
   }
 
   public IndexReader indexReaderFactory() throws IOException {
     return ii.indexReaderFactory();
   }
 
-  public IndexWriterFacade indexWriterFactory(final Analyzer analyzer, final boolean create, IndexWriter.MaxFieldLength mfl) throws IOException {
+  public IndexWriterFacade indexWriterFactory(final Analyzer analyzer, final boolean create) throws IOException {
     return new IndexWriterFacade() {
 
       private InstantiatedIndexWriter iw = ii.indexWriterFactory(analyzer, create);

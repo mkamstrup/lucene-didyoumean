@@ -257,7 +257,7 @@ public class NgramTokenSuggester implements TokenSuggester {
     if (minTokenLength < 2) {
       minTokenLength = 2;
     }
-    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET), false, IndexWriter.MaxFieldLength.LIMITED);
+    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET), false);
     //writer.setMergeFactor(300);
     //writer.setMaxBufferedDocs(150);
 

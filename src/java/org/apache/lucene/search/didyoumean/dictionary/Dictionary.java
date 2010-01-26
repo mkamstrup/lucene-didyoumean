@@ -35,13 +35,18 @@ import java.util.Map;
  * of {@link org.apache.lucene.search.didyoumean.SecondLevelSuggester} that hopefully will comes up with a suggestion.
  *
  * @author Karl Wettin <mailto:karl.wettin@gmail.com>, Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
- *         Date: Jul 31, 2006
- *         Time: 2:10:19 PM
+ * @since 2010-01-26
  */
 public abstract class Dictionary implements Iterable<SuggestionList> {
 
   protected Map<SecondLevelSuggester, Double> prioritiesBySecondLevelSuggester = new HashMap<SecondLevelSuggester, Double>();
 
+  /**
+   * Create a new {@link SuggestionList} for {@code query}. The query will automatically be
+   * converted to a query key internally by calling {@link #keyFormatter}.
+   * @param query the raw suer query to create a suggestion list for
+   * @return a newly allocated, empty, suggestion list 
+   */
   public SuggestionList suggestionListFactory(String query){
     return new SuggestionList(keyFormatter(query));
   }
@@ -152,14 +157,26 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
   }
 
   /**
-   * Implementation must pass {@code query} through {@link #keyFormatter}!
+   * Get a list of suggestions for the user provided query {@code query}.
+   * <p/>
+   * Implementation note: The implementing class should pass {@code query} through {@link #keyFormatter}
+   * in order to have it match with the query keys generated for {@link SuggestionList}s
    * @param query unformatted key
-   * @return suggestion list associated with key
+   * @return suggestion list associated with key. If no suggestions are found an empty list will be returned
    */
   public abstract SuggestionList getSuggestions(String query) throws QueryException;
 
+  /**
+   * Free all resources allocated by the dictionary. Any subsequent access to the dictionary will
+   * throw an {@link IOException}.
+   * @throws IOException if there is an error closing down the dictionary
+   */
   public abstract void close() throws IOException;
 
+  /**
+   * Store a suggestion list (by query key) in the dictionary
+   * @param suggestions the suggestion list to store
+   */
   public abstract void put(SuggestionList suggestions);
 
   /**
@@ -181,7 +198,7 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
   public abstract void prune(int maxSize) throws IOException;
 
   /**
-   *
+   * Returns the number of unique query keys stored in the dictionary
    */
   public abstract int size();
 

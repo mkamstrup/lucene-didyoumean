@@ -117,13 +117,13 @@ public class NgramTokenSuggester implements TokenSuggester {
    * @param aprioriIndexReader
    * @param aprioriIndexField            the field of the user index: if field is not null, the suggested
    *                                     words are restricted to the words present in this field.
-   * @param suggestOnyMorePopularTokens  if true, suggest only tokens that are more frequent than the query token
+   * @param suggestMorePopularTokensOnly  if true, suggest only tokens that are more frequent than the query token
    *                                     (only if restricted mode = (aprioriIndex!=null and aprioriIndexField!=null)
    * @param hitEnumerationsPerSuggestion number of ngram document to measure edit distance on for each number of expected returned suggestions. @return suggestions the query token
    * @throws IOException if something went wrong in either aprioriIndex or ngramIndex.
    */
   public SuggestionPriorityQueue suggest(String queryToken, int maxSuggestions, boolean suggestSelf, IndexReader aprioriIndexReader,
-                                         String aprioriIndexField, boolean suggestOnyMorePopularTokens, int hitEnumerationsPerSuggestion) throws IOException {
+                                         String aprioriIndexField, boolean suggestMorePopularTokensOnly, int hitEnumerationsPerSuggestion) throws IOException {
 
     SuggestionPriorityQueue queue = new SuggestionPriorityQueue(maxSuggestions);
 
@@ -131,9 +131,9 @@ public class NgramTokenSuggester implements TokenSuggester {
     final EditDistance editDistance = editDistanceFactory(queryToken);
     final int tokenLength = queryToken.length();
 
-    final int goalFreq = (suggestOnyMorePopularTokens && aprioriIndexReader != null) ? aprioriIndexReader.docFreq(new Term(aprioriIndexField, queryToken)) : 0;
+    final int goalFreq = (suggestMorePopularTokensOnly && aprioriIndexReader != null) ? aprioriIndexReader.docFreq(new Term(aprioriIndexField, queryToken)) : 0;
     // if the word exists in the real index and we don't care for word frequency, return the word itself
-    if (!suggestOnyMorePopularTokens && goalFreq > 0) {
+    if (!suggestMorePopularTokensOnly && goalFreq > 0) {
       queue.add((new Suggestion(queryToken)));
       return queue;
     }
@@ -190,7 +190,7 @@ public class NgramTokenSuggester implements TokenSuggester {
       if (aprioriIndexReader != null) { // use the user index
         suggestion.setFrequency(aprioriIndexReader.docFreq(new Term(aprioriIndexField, suggestion.getSuggested()))); // freq in the index
         // don't suggest a word that is not present in the field
-        if ((suggestOnyMorePopularTokens && goalFreq > suggestion.getFrequency()) || suggestion.getFrequency() < 1) {
+        if ((suggestMorePopularTokensOnly && goalFreq > suggestion.getFrequency()) || suggestion.getFrequency() < 1) {
           continue;
         }
       }

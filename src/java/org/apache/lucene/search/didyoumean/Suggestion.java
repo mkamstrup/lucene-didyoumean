@@ -58,7 +58,7 @@ public class Suggestion implements Comparable<Suggestion> {
    * @return the suggestion scores compared.
    */
   public int compareTo(Suggestion suggestion) {
-    return Double.compare(suggestion.getScore(), getScore());
+    return Double.compare(getScore(), suggestion.getScore());
   }
 
 

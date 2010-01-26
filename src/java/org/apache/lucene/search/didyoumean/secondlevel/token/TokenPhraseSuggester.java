@@ -260,7 +260,7 @@ public abstract class TokenPhraseSuggester {
       }
     };
 
-    SuggestionPriorityQueue queue = new SuggestionPriorityQueue(maxSuggestionsPerToken);
+    SuggestionPriorityQueue queue = new SuggestionPriorityQueue(maxSuggestions);
 
 
     int queryCounter = 0;
@@ -276,7 +276,6 @@ public abstract class TokenPhraseSuggester {
 
         StringBuilder sb = new StringBuilder(10 * matrix.size());
         for (Suggestion suggestion : suggestions) {
-          if ("".equals(suggestion.getSuggested())) continue;
           if (sb.length() > 0) sb.append(' ');
           sb.append(suggestion.getSuggested());
         }
@@ -288,7 +287,7 @@ public abstract class TokenPhraseSuggester {
           Query nextQuery = suggestionAprioriQueryFactory(suggestions);
           try {
 
-            hits = getAprioriSearcher().search(nextQuery, Integer.MAX_VALUE);
+            hits = getAprioriSearcher().search(nextQuery, maxSuggestions);
             corpusQueryResults = hits.totalHits;
             if (corpusQueryResults == 0) {
               hits = null;
@@ -312,7 +311,7 @@ public abstract class TokenPhraseSuggester {
         // todo refactor, this is a nasty hack due to MultiTokenSuggester using this code.
 
 
-        if (currentHit < hits.totalHits) {
+        if (currentHit < hits.scoreDocs.length) {
 
           // attempt to figure out the order of the tokens in the phrase
 
@@ -356,7 +355,7 @@ public abstract class TokenPhraseSuggester {
             } else {
               // to term vector. look for one in next hit.
               // todo some setting that skip this when score is lower than n or current hit greather than n.
-              if (hits.totalHits - 1 == currentHit) {
+              if (hits.scoreDocs.length - 1 == currentHit) {
                 // fall back on user input
               } else {
                 continue;
@@ -370,10 +369,11 @@ public abstract class TokenPhraseSuggester {
 
       StringBuilder stringBuilder = new StringBuilder(matrix.size() * 10);
       for (Suggestion suggestion : suggestions) {
+        if (stringBuilder.length() > 0) {
+          stringBuilder.append(' ');
+        }
         stringBuilder.append(suggestion.getSuggested());
-        stringBuilder.append(' ');
       }
-      stringBuilder.deleteCharAt(stringBuilder.length() - 1);
 
       String suggested = stringBuilder.toString();
 
@@ -383,7 +383,8 @@ public abstract class TokenPhraseSuggester {
       }
       score *= hits.totalHits;
 
-      queue.add(new Suggestion(suggested, score, corpusQueryResults));
+      // Update the result set, spilling out any excess suggestions with too low score
+      queue.insertWithOverflow(new Suggestion(suggested, score, corpusQueryResults));
 
       hits = null;
 

@@ -33,7 +33,7 @@ public class SuggestionPriorityQueue extends PriorityQueue<Suggestion> {
 
 
   protected boolean lessThan(Suggestion a, Suggestion b) {
-    return a.compareTo(b) == -1;
+    return a.compareTo(b) < 0;
   }
 
   public Suggestion[] toArray() {

@@ -142,7 +142,7 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
         sl = new SuggestionList(s.getSuggested());
         inverted.put(s.getSuggested(), sl);
       }
-      sl.addSuggested(sl.getQuery(), s.getScore(), s.getCorpusQueryResults());
+      sl.addSuggested(sl.getQueryKey(), s.getScore(), s.getCorpusQueryResults());
     }
 
     return inverted;

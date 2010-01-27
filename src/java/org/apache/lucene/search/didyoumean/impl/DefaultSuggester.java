@@ -161,7 +161,7 @@ public class DefaultSuggester extends AbstractSuggester implements Serializable 
     // build an array that is max n in size.
 
     LinkedList<Suggestion> ret = new LinkedList<Suggestion>();
-    suggestions.filter(ret, new SuggestionList.SuggestionFilter() {
+    suggestions.filterTo(ret, new SuggestionList.Filter() {
 
       public boolean accept(Suggestion suggestion) {
         return suggestion.getScore() > getSuggestionSupressionThreadshold();

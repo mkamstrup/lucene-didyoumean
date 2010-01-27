@@ -107,8 +107,8 @@ public class DefaultTrainer<R> implements Trainer<R> {
 //
 //      // if inspected, negative train on top suggestion,
 //      // but only if available and not the same as the query
-//      SuggestionList suggestions = dictionary.getSuggestions(goalTreeRoot.getQuery());
-//      if (goalTreeRoot.getInspections().size() > 0 && suggestions != null && suggestions.size() > 0 && !suggestions.get(0).getSuggested().equals(goalTreeRoot.getQuery())) {
+//      SuggestionList suggestions = dictionary.getSuggestions(goalTreeRoot.getQueryKey());
+//      if (goalTreeRoot.getInspections().size() > 0 && suggestions != null && suggestions.size() > 0 && !suggestions.get(0).getSuggested().equals(goalTreeRoot.getQueryKey())) {
 //        suggestions.get(0).setPopularity(suggestions.get(0).getPopularity() * getIgnoredSuggestionNegativeAdaptationFactor());
 //        suggestions.sort();
 //      }
@@ -198,7 +198,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
             }
 
             // uncomment to adapt every time
-            // adaptPositive(dictionary, nodesWithGoals.get(0).getQuery(), nodesWithGoals.get(0).getCorpusQueryResults(), node);
+            // adaptPositive(dictionary, nodesWithGoals.get(0).getQueryKey(), nodesWithGoals.get(0).getCorpusQueryResults(), node);
           }
         }
 

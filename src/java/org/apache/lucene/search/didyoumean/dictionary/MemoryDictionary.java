@@ -33,7 +33,7 @@ public class MemoryDictionary extends Dictionary {
 
   @Override
   public void put(SuggestionList suggestions) {
-    store.put(suggestions.getQuery(), suggestions);
+    store.put(suggestions.getQueryKey(), suggestions);
   }
 
   @Override

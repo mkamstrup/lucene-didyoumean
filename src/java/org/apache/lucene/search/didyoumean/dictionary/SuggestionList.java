@@ -39,8 +39,7 @@ public class SuggestionList implements Iterable<Suggestion>, Serializable {
   // private static Log log = LogFactory.getLog(SuggestionsList.class);
   private static long serialVersionUID = 1l;
 
-  //@PrimaryKey
-  private String query;
+  private String queryKey;
   private List<Suggestion> suggestions = new LinkedList<Suggestion>();
 
   /**
@@ -50,7 +49,7 @@ public class SuggestionList implements Iterable<Suggestion>, Serializable {
    * @param queryKey the query key to use for this suggestion list
    */
   SuggestionList(String queryKey) {
-    this.query = queryKey;
+    this.queryKey = queryKey;
   }
 
   /**
@@ -177,12 +176,12 @@ public class SuggestionList implements Iterable<Suggestion>, Serializable {
   }
 
   /**
-   * Get the query key this list contains suggestions for
-   * @return the query key, ie. <i>not</i> the original user query, but the normalized form
+   * Get the queryKey key this list contains suggestions for
+   * @return the queryKey key, ie. <i>not</i> the original user queryKey, but the normalized form
    * @see Dictionary#formatQueryKey
    */
   public String getQueryKey() {
-    return query;
+    return queryKey;
   }
 
   /**

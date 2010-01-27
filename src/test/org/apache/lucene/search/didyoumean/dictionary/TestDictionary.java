@@ -12,6 +12,15 @@ public class TestDictionary extends TestCase {
 
   protected Dictionary dict;
 
+  /* This test needs to be in specific subclasses of TestDictionary
+   * since subclasses may override formatQueryKey() and change the value */
+  public void testQueryKeys() throws Exception {
+    assertEquals("foobar", dict.formatQueryKey("foo  bar"));
+    assertEquals("foobar", dict.formatQueryKey("foobar"));
+    assertEquals("foobar", dict.formatQueryKey("   foo bar "));
+    assertEquals("foobar", dict.formatQueryKey(" @$  foo.bar\n\r"));
+  }
+
   public void testEmptyDict() throws Exception {
     assertEquals(0, dict.size());
     assertEquals(0, dict.getSuggestions("ff").size());
@@ -22,7 +31,21 @@ public class TestDictionary extends TestCase {
     suggestions.addSuggested("foobar", 1d, 1);
     dict.put(suggestions);
     assertEquals(1, dict.size());
-    assertEquals(1, dict.getSuggestions("foo").size());
-    assertEquals("foobar", dict.getSuggestions("foo").get(0).getSuggested());
+
+    SuggestionList suggs = dict.getSuggestions("foo");
+    assertEquals(1, suggs.size());
+    assertEquals(suggestions.get(0), suggs.get(0));
+
+    suggs = dict.getSuggestions("foo \n");
+    assertEquals(1, suggs.size());
+    assertEquals(suggestions.get(0), suggs.get(0));
+
+    // Try an put the same suggestions again - this should be a no-op
+    dict.put(suggestions);
+    assertEquals(1, dict.size());
+
+    suggs = dict.getSuggestions("foo");
+    assertEquals(1, suggs.size());
+    assertEquals(suggestions.get(0), suggs.get(0));
   }
 }

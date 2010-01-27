@@ -96,5 +96,16 @@ public class Suggestion implements Comparable<Suggestion> {
     return sb.toString();
   }
 
+  @Override
+  public boolean equals(Object o){
+    if (!(o instanceof Suggestion)) return false;
+    Suggestion other = (Suggestion)o;
 
+    if (Double.compare(getScore(), other.getScore()) == 0 &&
+        getSuggested().equals(other.getSuggested()) &&
+        getCorpusQueryResults() == other.getCorpusQueryResults()) {
+      return true;
+    }
+    return false;
+  }
 }

@@ -11,6 +11,15 @@
     <orderEntry type="module" module-name="instantiated" />
     <orderEntry type="module" module-name="lucene-core" />
     <orderEntry type="library" name="JUnit" level="project" />
+    <orderEntry type="module-library">
+      <library name="h2">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/h2-1.2.127.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

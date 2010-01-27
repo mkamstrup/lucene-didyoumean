@@ -33,11 +33,11 @@ import java.util.*;
  * If a user accepts the suggestion made by the system, then we increase the score for that suggestion. (positive adaptation)
  * If a user does not accept the suggestion made by the system, then we decrease the score for that suggestion. (negative adaptation)
  * <p/>
- * The the goal tree is a single query, one query only (perhaps with multiple inspections)
+ * If the goal tree is a single query, ie. exactly one query (perhaps with multiple inspections),
  * then we adapt negative once again.
  * <p/>
  * Suggestions are the query with inspections, ordered by the classification weight.
- * All the queries in the goal witout inspections will be adpated positive with
+ * All the queries in the goal without inspections will be adpated positive with
  * the query with inspections that has the shortest edit distance.
  * <p/>
  * Suggest back from best goal to second best goal. homm -> heroes of might and magic -> homm
@@ -74,7 +74,7 @@ public class DefaultTrainer<R> implements Trainer<R> {
       QueryGoalNode<R> node = it.next();
       if (node.getParent().getSuggestion() != null) {
 
-        SuggestionList suggestions = dictionary.getSuggestions(dictionary.keyFormatter(node.getParent().getQuery()));
+        SuggestionList suggestions = dictionary.getSuggestions(dictionary.formatQueryKey(node.getParent().getQuery()));
         Suggestion suggestion = suggestions.get(node.getParent().getSuggestion());
 
         if (node.getQuery().equals(node.getParent().getSuggestion())) {

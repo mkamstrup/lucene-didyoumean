@@ -43,26 +43,40 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
 
   /**
    * Create a new {@link SuggestionList} for {@code query}. The query will automatically be
-   * converted to a query key internally by calling {@link #keyFormatter}.
+   * converted to a query key internally by calling {@link #formatQueryKey}.
    * @param query the raw suer query to create a suggestion list for
    * @return a newly allocated, empty, suggestion list 
    */
   public SuggestionList suggestionListFactory(String query){
-    return new SuggestionList(keyFormatter(query));
+    return new SuggestionList(formatQueryKey(query));
   }
 
   /**
-   * This function allows modification of the dictionary keys. Default implementation stripps them from all
-   * whitespace and punctuation, enabling features such as "allwork and no fun" suggesting "all work and no fun"
-   * That will of course require that the trainer have inserted the key to suggest to it's original self. Training
+   * Calculate a normalized <i>query key</i> for a user query. The query key is used
+   * for dictionary lookups. The default implementation strips all non-letter characters
+   * from {@code userQuery} and converts it to lowercase.
+   * <p/>
+   * Using query keys enables features such as <i>"allwork and no fun"</i> suggesting
+   * <i>"all work and no fun"</i>.
+   * That will of course require that the trainer have inserted the key to suggest to
+   * its original user query. Training
    * everything the users type in might consume a lot of resources.
-   * {@link org.apache.lucene.search.didyoumean.impl.DefaultTrainer#setTrainingFinalGoalAsSelf(boolean)} ()}
+   * See {@link org.apache.lucene.search.didyoumean.impl.DefaultTrainer#setTrainingFinalGoalAsSelf(boolean)} ()}
    *
-   * @param inputKey dictionary key to be formatted
-   * @return inputKey stripped from all whitespace and punctuation.
+   * @param userQuery the user string to calculate the query key for
+   * @return {@code userQuery} stripped from all non-letter characters and converted to lower case
    */
-  public String keyFormatter(String inputKey) {
-    return inputKey.replaceAll("\\p{Punct}", "").replaceAll("\\s", "").toLowerCase();
+  public String formatQueryKey(String userQuery) {
+    // This implementation is an (much) optimized version of:
+    //  return userQuery.replaceAll("\\p{Punct}", "").replaceAll("\\s", "").toLowerCase();
+    StringBuilder buf = new StringBuilder(userQuery.length());
+    for (int i = 0; i < userQuery.length(); i++) {
+      char c = userQuery.charAt(i);
+      if (Character.isLetter(c)) {
+        buf.append(Character.toLowerCase(c));
+      }
+    }    
+    return buf.toString();
   }
 
   /**
@@ -159,7 +173,7 @@ public abstract class Dictionary implements Iterable<SuggestionList> {
   /**
    * Get a list of suggestions for the user provided query {@code query}.
    * <p/>
-   * Implementation note: The implementing class should pass {@code query} through {@link #keyFormatter}
+   * Implementation note: The implementing class should pass {@code query} through {@link #formatQueryKey}
    * in order to have it match with the query keys generated for {@link SuggestionList}s
    * @param query unformatted key
    * @return suggestion list associated with key. If no suggestions are found an empty list will be returned

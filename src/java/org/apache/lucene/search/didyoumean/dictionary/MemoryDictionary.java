@@ -19,7 +19,7 @@ public class MemoryDictionary extends Dictionary {
 
   @Override
   public SuggestionList getSuggestions(String query) {
-    SuggestionList suggestions = store.get(keyFormatter(query));
+    SuggestionList suggestions = store.get(formatQueryKey(query));
     if (suggestions != null) {
       return suggestions;
     }

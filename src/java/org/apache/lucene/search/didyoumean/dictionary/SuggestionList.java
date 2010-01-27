@@ -29,7 +29,7 @@ import org.apache.lucene.search.didyoumean.Suggestion;
  * <p/>
  * The suggestion list does not know about the original user query, only the
  * normalized form of the query, known as the <i>query key</i>, obtained from
- * calling {@link Dictionary#keyFormatter(String)} on the original user query.
+ * calling {@link Dictionary#formatQueryKey(String)} on the original user query.
  *
  * @author Karl Wettin <mailto:karl.wettin@gmail.com>, Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
  * @since 2007-feb-02
@@ -46,7 +46,7 @@ public class SuggestionList implements Iterable<Suggestion>, Serializable {
   /**
    * Create a new suggestion list for the query key {@code queryKey}.
    * The query key is normally generated from a user query by calling
-   * {@link Dictionary#keyFormatter(String)}
+   * {@link Dictionary#formatQueryKey(String)}
    * @param queryKey the query key to use for this suggestion list
    */
   SuggestionList(String queryKey) {

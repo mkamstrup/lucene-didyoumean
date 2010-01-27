@@ -169,7 +169,8 @@ public class SuggestionList implements Iterable<Suggestion>, Serializable {
   }
 
   /**
-   * Sort all suggestions in this list
+   * Sort all suggestions in this list according to their score
+   * @see Suggestion#getScore()
    */
   public void sort() {
     Collections.sort(suggestions);
@@ -178,6 +179,7 @@ public class SuggestionList implements Iterable<Suggestion>, Serializable {
   /**
    * Get the query key this list contains suggestions for
    * @return the query key, ie. <i>not</i> the original user query, but the normalized form
+   * @see Dictionary#formatQueryKey
    */
   public String getQueryKey() {
     return query;
@@ -185,7 +187,7 @@ public class SuggestionList implements Iterable<Suggestion>, Serializable {
 
   /**
    * Get the raw {@code List} backing this suggestion list
-   * @return
+   * @return the list instance used to hold the suggestions
    */
   List<Suggestion> getSuggestions() {
     return suggestions;

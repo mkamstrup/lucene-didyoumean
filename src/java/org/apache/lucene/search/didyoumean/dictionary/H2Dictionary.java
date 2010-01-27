@@ -8,13 +8,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * FIXME: Missing class docs for org.apache.lucene.search.didyoumean.dictionary.H2Dictionary
+ * A {@link Dictionary} implementation backed by a H2 SQL database instance -
+ * see <a href="http://h2database.org">h2database.org</a>. It is recommended,
+ * but not required, that you run with H2 version &gt;= 1.2.26.
  *
  * @author Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
  * @since Jan 27, 2010
  */
 public class H2Dictionary extends JDBCDictionary {
 
+  /**
+   * Create a new H2Dictionary using a database files in the directory {@code baseDir}.
+   * If there already is a database in that directory it will be reused, and if the
+   * directory doesn't exist it will be created.
+   * @param baseDir the directory containing the database files
+   * @throws SQLException if there is an error creating or opening the database
+   * @throws IOException if {@code baseDir} is a regular file
+   */
   public H2Dictionary(File baseDir) throws SQLException, IOException {
     super(createConnection(baseDir));
   }

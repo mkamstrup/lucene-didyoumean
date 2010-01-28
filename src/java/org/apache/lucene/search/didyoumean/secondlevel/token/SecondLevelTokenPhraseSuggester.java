@@ -16,30 +16,27 @@ package org.apache.lucene.search.didyoumean.secondlevel.token;
  */
 
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.search.didyoumean.SecondLevelSuggester;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
 
 import java.io.IOException;
 
 /**
- * Makes TokenPhraseSuggesterImpl a SecondLevelSuggester.
+ * Wraps a {@link TokenPhraseSuggester} as a {@link SecondLevelSuggester}.
  *
- * todo: this is an ugly class. decoration? 
- *
- * @author Karl Wettin <mailto:karl.wettin@gmail.com> 
- * Date: 2007-feb-17
- * Time: 08:03:01
+ * @author Karl Wettin <mailto:karl.wettin@gmail.com>, Mikkel Kamstrup Erlandsen <mailto:mke@statsbiblioteket.dk>
+ * @since 2007-feb-17
  */
-public class SecondLevelTokenPhraseSuggester extends TokenPhraseSuggesterImpl implements SecondLevelSuggester {
+public class SecondLevelTokenPhraseSuggester implements SecondLevelSuggester {
 
-  public SecondLevelTokenPhraseSuggester(TokenSuggester tokenSuggester, String aprioriIndexField, boolean defaultSuggestMorePopularTokensOnly, int defaultMaxSuggestionsPerToken, Analyzer phraseAnalyzer, IndexFacade aprioriIndex) throws IOException {
-    super(tokenSuggester, aprioriIndexField, defaultSuggestMorePopularTokensOnly, defaultMaxSuggestionsPerToken, phraseAnalyzer, aprioriIndex);
+  private TokenPhraseSuggester phraseSuggester;
+
+  public SecondLevelTokenPhraseSuggester(TokenPhraseSuggester phraseSuggester) throws IOException {
+    this.phraseSuggester = phraseSuggester;
   }
 
   public SuggestionPriorityQueue suggest(String query) {
-    return suggest(query, 1);
+    return phraseSuggester.suggest(query, 1);
   }
 
 

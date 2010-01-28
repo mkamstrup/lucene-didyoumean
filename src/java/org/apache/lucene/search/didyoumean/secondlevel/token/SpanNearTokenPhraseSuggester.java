@@ -33,7 +33,7 @@ import java.util.List;
  *         Date: 2007-feb-03
  *         Time: 08:11:34
  */
-public class TokenPhraseSuggesterImpl extends TokenPhraseSuggester {
+public class SpanNearTokenPhraseSuggester extends TokenPhraseSuggester {
 
   private IndexFacade aprioriIndex;
   private IndexReader aprioriReader;
@@ -44,7 +44,7 @@ public class TokenPhraseSuggesterImpl extends TokenPhraseSuggester {
     return true;
   }
 
-  public TokenPhraseSuggesterImpl(TokenSuggester tokenSuggester, String aprioriIndexField, boolean defaultSuggestMorePopularTokensOnly, int defaultMaxSuggestionsPerToken, Analyzer phraseAnalyzer, IndexFacade aprioriIndex) throws IOException {
+  public SpanNearTokenPhraseSuggester(TokenSuggester tokenSuggester, String aprioriIndexField, boolean defaultSuggestMorePopularTokensOnly, int defaultMaxSuggestionsPerToken, Analyzer phraseAnalyzer, IndexFacade aprioriIndex) throws IOException {
     super(tokenSuggester, aprioriIndexField, defaultSuggestMorePopularTokensOnly, defaultMaxSuggestionsPerToken, phraseAnalyzer);
     this.aprioriIndex = aprioriIndex;
     this.aprioriReader = aprioriIndex.indexReaderFactory();

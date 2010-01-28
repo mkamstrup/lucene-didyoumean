@@ -25,8 +25,8 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.index.facade.IndexWriterFacade;
 import org.apache.lucene.index.facade.DirectoryIndexFacade;
 import org.apache.lucene.index.facade.IndexFacade;
+import org.apache.lucene.search.didyoumean.secondlevel.token.SpanNearTokenPhraseSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.TokenPhraseSuggester;
-import org.apache.lucene.search.didyoumean.secondlevel.token.TokenPhraseSuggesterImpl;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
 import org.apache.lucene.store.RAMDirectory;
@@ -73,7 +73,7 @@ public class TestTokenPhraseSuggester extends TestCase {
     tokenSuggester.indexDictionary(new TermEnumIterator(reader, field), 2);
 
     // the phrase suggester backed by single token suggester
-    TokenPhraseSuggester phraseSuggester = new TokenPhraseSuggesterImpl(tokenSuggester, field, false, 3, analyzer, aprioriIndex);
+    TokenPhraseSuggester phraseSuggester = new SpanNearTokenPhraseSuggester(tokenSuggester, field, false, 3, analyzer, aprioriIndex);
 
     assertEquals("lost in translation", phraseSuggester.didYouMean("lost on translation"));
     assertEquals("heroes might magic", phraseSuggester.didYouMean("magic light heros"));

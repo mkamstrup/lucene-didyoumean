@@ -19,14 +19,15 @@ package org.apache.lucene.search.didyoumean;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.facade.IndexFacade;
 import org.apache.lucene.index.facade.IndexFacadeFactory;
 import org.apache.lucene.index.facade.InstantiatedIndexFacade;
 import org.apache.lucene.search.didyoumean.dictionary.Dictionary;
 import org.apache.lucene.search.didyoumean.dictionary.QueryException;
-import org.apache.lucene.search.didyoumean.secondlevel.token.MultiTokenSuggester;
+import org.apache.lucene.search.didyoumean.secondlevel.token.SpanNearTokenPhraseSuggester;
+import org.apache.lucene.search.didyoumean.secondlevel.token.TermTokenPhraseSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.SecondLevelTokenPhraseSuggester;
+import org.apache.lucene.search.didyoumean.secondlevel.token.TokenPhraseSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
 import org.apache.lucene.search.didyoumean.session.*;
@@ -286,7 +287,9 @@ public class SuggestionFacade<R> {
     ngramTokenSuggester.indexDictionary(new TermEnumIterator(aprioriIndexReader, aprioriField), minNgramSize);
     aprioriIndexReader.close();
 
-    ret.put(new SecondLevelTokenPhraseSuggester(ngramTokenSuggester, aprioriField, false, maxSuggestionsPerWord, analyzer, aprioriIndex), 3d);
+    TokenPhraseSuggester phraseSuggester = new SpanNearTokenPhraseSuggester(
+                             ngramTokenSuggester, aprioriField, false, maxSuggestionsPerWord, analyzer, aprioriIndex);
+    ret.put(new SecondLevelTokenPhraseSuggester(phraseSuggester), 3d);
 
     if (systemIndex != null) {
       System.out.println("Creating ngram index from system corpus terms...");
@@ -297,7 +300,8 @@ public class SuggestionFacade<R> {
       ngramTokenSuggester.indexDictionary(new TermEnumIterator(systemIndexReader, systemIndexField), minNgramSize);
       systemIndexReader.close();
 
-      ret.put(new MultiTokenSuggester(sysetmNgramTokenSuggester, systemIndexField, true, maxSuggestionsPerWord, analyzer, systemIndex), 1d);
+      ret.put(new TermTokenPhraseSuggester(
+                 sysetmNgramTokenSuggester, systemIndexField, true, maxSuggestionsPerWord, analyzer, systemIndex), 1d);
     }
 
     return ret;

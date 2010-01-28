@@ -33,7 +33,7 @@ import java.io.IOException;
  * Date: 2007-okt-23
  * Time: 04:33:29
  */
-public class MultiTokenSuggester extends TokenPhraseSuggester implements SecondLevelSuggester {
+public class TermTokenPhraseSuggester extends TokenPhraseSuggester implements SecondLevelSuggester {
 
   private IndexFacade aprioriIndex;
   private IndexReader aprioriReader;
@@ -59,7 +59,7 @@ public class MultiTokenSuggester extends TokenPhraseSuggester implements SecondL
    * @param aprioriIndex
    * @throws IOException
    */
-  public MultiTokenSuggester(TokenSuggester tokenSuggester, String aprioriIndexField, boolean defaultSuggestMorePopularTokensOnly, int defaultMaxSuggestionsPerToken, Analyzer queryAnalyzer, IndexFacade aprioriIndex) throws IOException {
+  public TermTokenPhraseSuggester(TokenSuggester tokenSuggester, String aprioriIndexField, boolean defaultSuggestMorePopularTokensOnly, int defaultMaxSuggestionsPerToken, Analyzer queryAnalyzer, IndexFacade aprioriIndex) throws IOException {
     super(tokenSuggester, aprioriIndexField, defaultSuggestMorePopularTokensOnly, defaultMaxSuggestionsPerToken, queryAnalyzer);
     this.aprioriIndex = aprioriIndex;
     this.aprioriReader = aprioriIndex.indexReaderFactory();

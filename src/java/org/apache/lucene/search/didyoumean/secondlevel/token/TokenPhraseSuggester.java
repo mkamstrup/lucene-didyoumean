@@ -16,7 +16,6 @@ package org.apache.lucene.search.didyoumean.secondlevel.token;
 
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.index.IndexReader;
@@ -54,7 +53,7 @@ public abstract class TokenPhraseSuggester {
   private TokenSuggester tokenSuggester;
 
   /**
-   * this is a nasty hack due to MultiTokenSuggester using this code.
+   * this is a nasty hack due to TermTokenPhraseSuggester using this code.
    * @return true if this implementation allows inspection of term vector to change order of query
    */
   protected abstract boolean isUpdateSuggestionsOrder();
@@ -308,7 +307,7 @@ public abstract class TokenPhraseSuggester {
 
       if (isUpdateSuggestionsOrder()) {
 
-        // todo refactor, this is a nasty hack due to MultiTokenSuggester using this code.
+        // todo refactor, this is a nasty hack due to TermTokenPhraseSuggester using this code.
 
 
         if (currentHit < hits.scoreDocs.length) {

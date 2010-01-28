@@ -2,12 +2,10 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.facade.DirectoryIndexFacade;
 import org.apache.lucene.index.facade.IndexFacade;
-import org.apache.lucene.search.didyoumean.secondlevel.token.MultiTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.TokenPhraseSuggester;
-import org.apache.lucene.search.didyoumean.secondlevel.token.TokenPhraseSuggesterImpl;
+import org.apache.lucene.search.didyoumean.secondlevel.token.SpanNearTokenPhraseSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
@@ -67,8 +65,8 @@ public class DidYouMean {
 
     TokenPhraseSuggester phraseSuggester = null;
     try {
-      phraseSuggester = new TokenPhraseSuggesterImpl(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
-      //phraseSuggester = new MultiTokenSuggester(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
+      phraseSuggester = new SpanNearTokenPhraseSuggester(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
+      //phraseSuggester = new TermTokenPhraseSuggester(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(4);

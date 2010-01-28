@@ -59,6 +59,7 @@ public class DidYouMean {
       ngramIndex.indexWriterFactory(null, true).close(); // Initialize empty index
       tokenSuggester = new NgramTokenSuggester(ngramIndex);
       tokenSuggester.indexDictionary(new TermEnumIterator(aprioriIndex.indexReaderFactory(), aprioriField), 2);
+      tokenSuggester.setAccuracy(0.1f);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(3);
@@ -66,8 +67,8 @@ public class DidYouMean {
 
     TokenPhraseSuggester phraseSuggester = null;
     try {
-      //phraseSuggester = new TokenPhraseSuggesterImpl(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
-      phraseSuggester = new MultiTokenSuggester(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
+      phraseSuggester = new TokenPhraseSuggesterImpl(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
+      //phraseSuggester = new MultiTokenSuggester(tokenSuggester, aprioriField, false, 3, analyzer, aprioriIndex);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(4);

@@ -81,7 +81,7 @@ public class TestNgramTokenSuggester extends TestCase {
       assertEquals(num_field2, num_field1 + 1);
 
       // test small word
-      assertEquals("five", ngramTokenSuggester.suggest("fvie", 2).top().getSuggested());
+      assertEquals("five", ((Suggestion)ngramTokenSuggester.suggest("fvie", 2).top()).getSuggested());
       assertEquals(0, ngramTokenSuggester.suggest("five", 2).size()); // Don't suggest self
       assertEquals("five", ((Suggestion)ngramTokenSuggester.suggest("fiv", 2).top()).getSuggested());
       assertEquals("five", ((Suggestion)ngramTokenSuggester.suggest("ive", 20).top()).getSuggested());
@@ -92,12 +92,12 @@ public class TestNgramTokenSuggester extends TestCase {
       // test restraint to a field
       assertEquals(0, ngramTokenSuggester.suggest("tousand", 100, false, reader, "field1", false).size());
       assertEquals(1, ngramTokenSuggester.suggest("tousand", 100, false, reader, "field2", false).size());
-      assertEquals("thousand", ngramTokenSuggester.suggest("tousand", 100, false, reader, "field2", false).top().getSuggested());
+      assertEquals("thousand", ((Suggestion)ngramTokenSuggester.suggest("tousand", 100, false, reader, "field2", false).top()).getSuggested());
 
       // Test suggest self
       ngramTokenSuggester.setSuggestSelf(true);
       assertEquals(1, ngramTokenSuggester.suggest("five", 2).size());
-      assertEquals("five", ngramTokenSuggester.suggest("five", 2).top().getSuggested());
+      assertEquals("five", ((Suggestion)ngramTokenSuggester.suggest("five", 2).top()).getSuggested());
       ngramTokenSuggester.setSuggestSelf(false);
 
     } catch (IOException e) {

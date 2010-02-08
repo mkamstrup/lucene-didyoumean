@@ -28,6 +28,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
+import org.apache.lucene.util.Attribute;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -185,8 +186,11 @@ public abstract class TokenPhraseSuggester {
     try {
       while (ts.incrementToken()) {
         try {
-          TermAttribute term = ts.getAttribute(TermAttribute.class);
-          String termString = term.term();
+          Attribute term = ts.getAttribute(TermAttribute.class);
+          if (!(term instanceof TermAttribute)) {
+            continue; // Should we throw an Exception here?
+          }
+          String termString = ((TermAttribute)term).term();
           SuggestionPriorityQueue suggestions = tokenSuggester.suggest(termString, maxSuggestionsPerToken, true, getAprioriReader(), getAprioriIndexField(), suggestMorePopularTokensOnly);
           if (suggestions.size() == 0) {
             suggestions.add(new Suggestion(termString));

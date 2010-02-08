@@ -25,15 +25,20 @@ import java.util.LinkedList;
  * Date: 2007-mar-03
  * Time: 13:14:38
  */
-public class SuggestionPriorityQueue extends PriorityQueue<Suggestion> {
+public class SuggestionPriorityQueue extends PriorityQueue {
 
   public SuggestionPriorityQueue(int maxSize) {
     initialize(maxSize);
   }
 
 
-  protected boolean lessThan(Suggestion a, Suggestion b) {
-    return a.compareTo(b) < 0;
+  protected boolean lessThan(Object a, Object b) {
+    if (!(a instanceof Suggestion && b instanceof Suggestion)) {
+      throw new IllegalArgumentException(
+            "Expected Suggestions, got " + a.toString()
+            + " and " + b.toString());
+    }
+    return ((Suggestion)a).compareTo((Suggestion)b) < 0;
   }
 
   public Suggestion[] toArray() {

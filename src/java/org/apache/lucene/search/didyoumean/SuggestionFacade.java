@@ -31,7 +31,6 @@ import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSug
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
 import org.apache.lucene.search.didyoumean.session.*;
 import org.apache.lucene.store.instantiated.InstantiatedIndex;
-import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -270,7 +269,7 @@ public class SuggestionFacade<R> {
 
     Map<SecondLevelSuggester, Double> ret = new HashMap<SecondLevelSuggester, Double>(2);
 
-    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.emptySet());
+    Analyzer analyzer = new StandardAnalyzer(Collections.emptySet());
 
 
     System.out.println("Creating a priori corpus...");

@@ -10,7 +10,6 @@ import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumItera
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,7 +34,7 @@ public class DidYouMean {
       System.exit(1);
     }
     
-    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET);
+    Analyzer analyzer = new StandardAnalyzer(Collections.EMPTY_SET);
     String aprioriField = args[1];
 
     File indexDir = new File(args[0]);
@@ -46,7 +45,7 @@ public class DidYouMean {
 
     IndexFacade aprioriIndex = null;
     try {
-      aprioriIndex = new DirectoryIndexFacade(FSDirectory.open(indexDir));
+      aprioriIndex = new DirectoryIndexFacade(FSDirectory.getDirectory(indexDir));
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(2);

@@ -29,7 +29,6 @@ import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
 import org.apache.lucene.search.didyoumean.secondlevel.token.TokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.TokenSuggestion;
-import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -137,7 +136,7 @@ public class NgramTokenSuggester implements TokenSuggester {
     final int goalFreq = (suggestMorePopularTokensOnly && aprioriIndexReader != null) ? aprioriIndexReader.docFreq(new Term(aprioriIndexField, queryToken)) : 0;
     // if the word exists in the real index and we don't care for word frequency, return the word itself
     if (!suggestMorePopularTokensOnly && goalFreq > 0) {
-      queue.add((new Suggestion(queryToken)));
+      queue.put((new Suggestion(queryToken)));
       return queue;
     }
 
@@ -197,7 +196,7 @@ public class NgramTokenSuggester implements TokenSuggester {
           continue;
         }
       }
-      queue.add(suggestion);
+      queue.put(suggestion);
     }
 
     return queue;
@@ -257,7 +256,7 @@ public class NgramTokenSuggester implements TokenSuggester {
     if (minTokenLength < 2) {
       minTokenLength = 2;
     }
-    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET), false);
+    IndexWriterFacade writer = ngramIndex.indexWriterFactory(new StandardAnalyzer(Collections.EMPTY_SET), false);
     //writer.setMergeFactor(300);
     //writer.setMaxBufferedDocs(150);
 

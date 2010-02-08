@@ -18,7 +18,6 @@ package org.apache.lucene.search.didyoumean.secondlevel.token;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.index.TermPositionVector;
@@ -28,7 +27,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.didyoumean.Suggestion;
 import org.apache.lucene.search.didyoumean.SuggestionPriorityQueue;
-import org.apache.lucene.util.Attribute;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -184,16 +182,17 @@ public abstract class TokenPhraseSuggester {
 
     TokenStream ts = getQueryAnalyzer().tokenStream(null, new StringReader(query));
     try {
-      while (ts.incrementToken()) {
+      Token token = new Token();
+      while ((token = ts.next(token)) != null) {
         try {
-          Attribute term = ts.getAttribute(TermAttribute.class);
-          if (!(term instanceof TermAttribute)) {
-            continue; // Should we throw an Exception here?
-          }
-          String termString = ((TermAttribute)term).term();
-          SuggestionPriorityQueue suggestions = tokenSuggester.suggest(termString, maxSuggestionsPerToken, true, getAprioriReader(), getAprioriIndexField(), suggestMorePopularTokensOnly);
+          token.term();
+          String termString = token.term();
+          SuggestionPriorityQueue suggestions = tokenSuggester.suggest(
+                termString, maxSuggestionsPerToken, true,
+                getAprioriReader(), getAprioriIndexField(),
+                suggestMorePopularTokensOnly);
           if (suggestions.size() == 0) {
-            suggestions.add(new Suggestion(termString));
+            suggestions.put(new Suggestion(termString));
           }
           matrix.add(suggestions.toArray());
 

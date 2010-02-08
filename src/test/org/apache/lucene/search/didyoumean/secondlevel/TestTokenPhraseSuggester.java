@@ -30,7 +30,6 @@ import org.apache.lucene.search.didyoumean.secondlevel.token.TokenPhraseSuggeste
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.NgramTokenSuggester;
 import org.apache.lucene.search.didyoumean.secondlevel.token.ngram.TermEnumIterator;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 
 import java.util.Collections;
 
@@ -50,7 +49,7 @@ public class TestTokenPhraseSuggester extends TestCase {
     IndexFacade aprioriIndex = new DirectoryIndexFacade(new RAMDirectory());
     aprioriIndex.indexWriterFactory(null, true).close();
 
-    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT, Collections.EMPTY_SET);
+    Analyzer analyzer = new StandardAnalyzer(Collections.EMPTY_SET);
     final String field = "field";
 
     // the apriori index - used to build ngrams and to check if suggestions are any good.

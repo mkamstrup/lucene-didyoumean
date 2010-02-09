@@ -389,8 +389,6 @@ public abstract class TokenPhraseSuggester {
 
     }
 
-    System.out.println("Built matrix with " + queryCounter + " queries and executed them in " + (System.currentTimeMillis() - ms) + " milliseconds.");
-
     return queue;
   }
 
